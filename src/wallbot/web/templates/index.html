@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallbot</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+</head>
+<body>
+    <h1>Wallbot Search Management</h1>
+
+    <table id="searches-table" class="ui-widget ui-widget-content">
+        <thead>
+            <tr class="ui-widget-header">
+                <th>Keywords</th>
+                <th>Categories</th>
+                <th>Min Price</th>
+                <th>Max Price</th>
+                <th>Distance</th>
+                <th>Publish Date</th>
+                <th>Order</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        $(function() {
+            $.getJSON('/api/searches', function(data) {
+                var tableBody = $('#searches-table tbody');
+                data.forEach(function(search) {
+                    var row = '<tr>' +
+                        '<td>' + search.kws + '</td>' +
+                        '<td>' + search.cat_ids + '</td>' +
+                        '<td>' + search.min_price + '</td>' +
+                        '<td>' + search.max_price + '</td>' +
+                        '<td>' + search.dist + '</td>' +
+                        '<td>' + search.publish_date + '</td>' +
+                        '<td>' + search.orde + '</td>' +
+                        '</tr>';
+                    tableBody.append(row);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

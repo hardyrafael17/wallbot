@@ -1,16 +1,16 @@
 @echo off
+cd /d %~dp0
 setlocal
 
-REM Check if venv exists
-if not exist venv\Scripts\python.exe (
-    echo Creating virtual environment...
+if not exist venv\Scripts\activate.bat (
+    echo "Creating virtual environment..."
     python -m venv venv
-    echo Installing dependencies...
-    venv\Scripts\pip.exe install -r requirements.txt
-    echo Setup complete.
 )
+
+call venv\Scripts\activate.bat
+pip install -r requirements.txt
 
 set PROFILE=dev
 
-echo Starting the application...
-venv\Scripts\python.exe -m src.wallbot
+echo "Starting the application..."
+python -m src.wallbot
