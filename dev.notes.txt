@@ -1,0 +1,10 @@
+this is a working app, if one creates a docker container from it, it just works. 
+
+Now, I'd like to be able to use this project with docker and also without the need of docker.
+I want to be able to use venv (virtual env for python), and want to just be able to run a python file (possibly from the root directory)
+and have the same results.
+(This app needs the telegram bot token to work) so this must be taken into account, and also, code should not be edited.
+How can we get that done? my intent is to be able to run it with or without docker. Both ways should work. 
+The changes and instructions on how to run the projet both ways must be added to the readme file.
+
+The solution must be scalable, meaning that, on top of not modifying any code, it should be runnable from windows (maybe a bat file for powershell and also a sh file for linux)

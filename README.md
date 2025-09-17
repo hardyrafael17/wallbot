@@ -27,17 +27,61 @@ bot de Telegram para gestionar busquedas sobre wallapop
 - Avisa cuando algún ítem baja de precio
 - Permite gestionar tu lista de ítems
 
-pip3 install -r requirements.txt
+## Running the application
 
-# Docker
+There are two ways to run the application:
 
-## Generate image docker
+### 1. Using Docker (recommended)
+
+This is the easiest way to get the application running.
+
+###### 1. Build the Docker image
 
 ```bash
 docker build --tag z0r3f/wallbot-docker:latest .
 ```
 
-## Tag version
+###### 2. Run the Docker container
+
+You will need a Telegram Bot Token to run the application. You can get one by talking to the [BotFather](https://t.me/botfather) on Telegram.
+
+```bash
+docker run --name wallbot --env BOT_TOKEN=<YOUR-TOKEN> z0r3f/wallbot-docker:latest
+```
+
+### 2. Without Docker (using a virtual environment)
+
+This method is recommended if you want to run the application without Docker.
+
+The setup script will create a virtual environment, install the required dependencies, and start the application.
+
+- **For Windows:**
+
+  ```powershell
+  .\run.bat
+  ```
+
+- **For Linux/macOS**:
+
+  ```bash
+  chmod +x run.sh
+  ./run.sh
+  ```
+
+The script will prompt you for your Telegram Bot Token if it's not already set as an environment variable.
+
+The script will also create a `db.sqlite` file in the root of the project, and a `wallbot.log` file with the application logs.
+
+
+## Docker
+
+### Generate image docker
+
+```bash
+docker build --tag z0r3f/wallbot-docker:latest .
+```
+
+### Tag version
 
 ###### Windows
 
@@ -64,19 +108,19 @@ docker push z0r3f/wallbot-docker:latest
 docker push z0r3f/wallbot-docker:$version
 ```
 
-## See images
+### See images
 
 ```bash
 docker images
 ```
 
-## Run on container
+### Run on container
 
 ```bash
 docker run --name wallbot --env BOT_TOKEN=<YOUR-TOKEN> z0r3f/wallbot-docker:latest
 ```
 
-## Export image
+### Export image
 
 ```bash
 docker save -o wallbot-docker.tar z0r3f/wallbot-docker:latest
