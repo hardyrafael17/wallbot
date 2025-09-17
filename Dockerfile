@@ -13,14 +13,15 @@ ENV TZ Europe/Madrid
 
 WORKDIR /app
 
-COPY VERSION .
+# Copy all project files into the container
+COPY . .
 
-COPY requirements.txt requirements.txt
+# Make the startup script executable
+RUN chmod +x ./start.sh
+
 RUN pip3 install -r requirements.txt
-
-COPY src/ src/
 
 RUN mkdir /data
 RUN mkdir /logs
 
-CMD [ "python3", "-m", "src.wallbot"]
+CMD [ "./start.sh" ]

@@ -1,22 +1,18 @@
 import logging
 import threading
-
-# Import the original main function and rename it for clarity
-from .main import main as run_bot_logic
+import time
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-
 def run_web_server():
     """
-    Starts the Flask web server in a production-ready way using Waitress.
+    Starts the Flask web server in a production-ready way.
     """
     try:
         # Assuming your Flask app instance is named 'app' inside 'src.wallbot.web.app'
         from src.wallbot.web.app import app
         from waitress import serve
         logging.info("Starting web server on http://0.0.0.0:8080")
-        # Use waitress to serve the app. It's a production-ready WSGI server.
         serve(app, host='0.0.0.0', port=8080)
     except ImportError:
         logging.error("Web server application not found or could not be imported.")
@@ -24,18 +20,22 @@ def run_web_server():
     except Exception as e:
         logging.error(f"Failed to start web server: {e}")
 
+def run_bot():
+    """
+    This is a placeholder for your main bot's entry point.
+    Replace the content of this function with your bot's startup and main loop.
+    """
+    logging.info("Starting core bot logic...")
+    # --- TODO: Replace this with your actual bot startup code. ---
+    # Example: bot.run() or similar blocking call.
+    logging.info("Bot is running...")
+    while True:
+        time.sleep(60) # Placeholder for a blocking operation
 
 if __name__ == "__main__":
-    # Start the web server in a non-blocking background thread.
-    # The 'daemon=True' flag ensures the thread will exit when the main program exits.
+    # Start the web server in a background thread
     web_thread = threading.Thread(target=run_web_server, daemon=True)
     web_thread.start()
 
-    # Run the main bot application logic in the main thread.
-    # This is a blocking call that will keep the application alive.
-    try:
-        run_bot_logic()
-    except Exception as e:
-        logging.critical(f"The core bot application has crashed: {e}", exc_info=True)
-
-    logging.info("Application has shut down.")
+    # Run the main bot application in the main thread
+    run_bot()

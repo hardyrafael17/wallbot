@@ -3,6 +3,7 @@ __pycache__
 venv/
 db.sqlite
 *.log
+core_app.log
 *.tar
 log
 wallbot.log.*

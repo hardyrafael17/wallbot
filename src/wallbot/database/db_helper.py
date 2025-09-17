@@ -4,26 +4,16 @@ import time
 from pathlib import Path
 from typing import List
 
-from src.wallbot.config.settings import PROFILE
+from src.wallbot.config.settings import DATABASE_PATH
 from src.wallbot.database.models import ChatSearch, Item
 
 
 class DBHelper:
     def __init__(self, dbname=None):
-        calculated_db_name = self.__get_db_name(dbname)
+        # Use the centralized DATABASE_PATH from settings, but allow overrides.
+        calculated_db_name = dbname if dbname is not None else DATABASE_PATH
         logging.info(f"DB: {calculated_db_name}")
         self.__conn = sqlite3.connect(calculated_db_name, check_same_thread=False)
-
-    @staticmethod
-    def __get_db_name(dbname=None) -> str:
-        if dbname is None:
-            if PROFILE is None:
-                dbname = "/data/db.sqlite"
-            else:
-                current_file = Path(__file__)
-                project_root = current_file.parent.parent.parent.parent
-                dbname = str(project_root / "db.sqlite")
-        return dbname
 
     def setup(self, version=""):
         tblstmtitem = "create table if not exists item " \

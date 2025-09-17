@@ -1,44 +1,26 @@
-<!-- Docker Badges -->
-[![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/z0r3f/wallbot-docker)](https://hub.docker.com/r/z0r3f/wallbot-docker)
-[![Docker pulls](https://img.shields.io/docker/pulls/z0r3f/wallbot-docker?style=flat-square)](https://hub.docker.com/r/z0r3f/wallbot-docker)
-[![Docker Image Version (latest by date)](https://img.shields.io/docker/v/z0r3f/wallbot-docker)](https://hub.docker.com/r/z0r3f/wallbot-docker)
-
-<!-- GitHub Actions Badges -->
-[![Docker Release](https://github.com/z0r3f/wallbot/actions/workflows/docker-release.yml/badge.svg)](https://github.com/z0r3f/wallbot/actions/workflows/docker-release.yml)
-[![Build Status](https://github.com/z0r3f/wallbot/actions/workflows/main.yml/badge.svg)](https://github.com/z0r3f/wallbot/actions/workflows/main.yml)
-
-[//]: # ([![Codecov]&#40;https://codecov.io/gh/z0r3f/wallbot/branch/main/graph/badge.svg&#41;]&#40;https://codecov.io/gh/z0r3f/wallbot&#41;)
-
-<!-- Proyecto y actividad -->
-[![commit_freq](https://img.shields.io/github/commit-activity/m/z0r3f/wallbot?style=flat-square)](https://github.com/z0r3f/wallbot/commits)
-[![last_commit](https://img.shields.io/github/last-commit/z0r3f/wallbot?style=flat-square)](https://github.com/z0r3f/wallbot/commits)
-[![Python Version](https://img.shields.io/pypi/pyversions/wallbot-docker)](https://github.com/z0r3f/wallbot)
-
-<!-- Licencia -->
-![GitHub](https://img.shields.io/github/license/z0r3f/wallbot)
-
 # wallbot
 
-wallapop search bot
+A Telegram bot for managing searches on Wallapop.
 
-bot de Telegram para gestionar busquedas sobre wallapop
-
-- Notifica cuando encuentra alguna busqueda
-- Avisa cuando algún ítem baja de precio
-- Permite gestionar tu lista de ítems
+## Features
+- Notifies you about new search results.
+- Alerts you when an item's price drops.
+- Allows you to manage your list of tracked items.
 
 ## Running the application
 
-There are two ways to run the application:
+This project can be run using Docker or directly on your local machine. Both methods require a `.env` file for configuration.
 
-### 1. Using Docker (recommended)
+### 1. Configuration
 
-This is the easiest way to get the application running.
-
-###### 1. Build the Docker image
+First, create a `.env` file in the root of the project by copying the example file:
 
 ```bash
-docker build --tag z0r3f/wallbot-docker:latest .
+# For Linux/macOS
+cp .env.example .env
+
+# For Windows (Command Prompt)
+copy .env.example .env
 ```
 
 ###### 2. Run the Docker container
