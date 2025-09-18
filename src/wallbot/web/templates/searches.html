@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Wallbot Searches</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Manage Wallbot Searches</h1>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Add Search Form -->
+        <div class="card">
+            <h2>Add New Search</h2>
+            <form action="{{ url_for('add_search') }}" method="post" class="form-add">
+                <input type="text" name="search_input" placeholder="<chat_id> <keyword(s)> [param=value...]" required>
+                <button type="submit">Save Search</button>
+            </form>
+            <div class="form-hint">
+                <p><strong>Example:</strong> <code>12345678 steam deck min_p=200 max_p=350</code></p>
+                <p><strong>Available params:</strong> <code>min_p</code>, <code>max_p</code>, <code>cat</code>, <code>dist</code>, <code>order</code>.</p>
+            </div>
+        </div>
+
+        <!-- Saved Searches List -->
+        <div class="card">
+            <h2>Saved Searches</h2>
+            {% if searches %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Chat ID</th>
+                            <th>Keywords</th>
+                            <th>Min Price</th>
+                            <th>Max Price</th>
+                            <th>Category</th>
+                            <th>Distance</th>
+                            <th>Order</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for search in searches %}
+                        <tr>
+                            <td>{{ search.id }}</td>
+                            <td>{{ search.chat_id }}</td>
+                            <td>{{ search.kws }}</td>
+                            <td>{{ search.min_price if search.min_price is not none else 'N/A' }}</td>
+                            <td>{{ search.max_price if search.max_price is not none else 'N/A' }}</td>
+                            <td>{{ search.cat_ids if search.cat_ids else 'N/A' }}</td>
+                            <td>{{ search.dist if search.dist else 'N/A' }}</td>
+                            <td>{{ search.orde if search.orde else 'N/A' }}</td>
+                            <td>
+                                <form action="{{ url_for('delete_search', search_id=search.id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this search?');">
+                                    <button type="submit" class="btn-delete">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No saved searches found.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

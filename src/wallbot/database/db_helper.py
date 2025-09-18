@@ -159,12 +159,14 @@ class DBHelper:
         return searches
 
     def get_chats_searches(self):
-        stmt = "select chat_id, kws, cat_ids, min_price, max_price, dist, publish_date, ord from chat_search " \
+        # Select the rowid as the unique identifier for the search
+        stmt = "select rowid, chat_id, kws, cat_ids, min_price, max_price, dist, publish_date, ord from chat_search " \
                "where active = 1"
         lista: List[ChatSearch] = []
         try:
             for row in self.__conn.execute(stmt):
-                c = ChatSearch(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7])
+                c = ChatSearch(row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8])
+                c.id = row[0]  # Assign the rowid to the 'id' attribute
                 lista.append(c)
         except Exception as e:
             logging.error(f"Error getting all chat searches: {e}")
@@ -175,6 +177,15 @@ class DBHelper:
                               f"Distance: {i.dist} - Publish date: {i.publish_date} - Order: {i.orde}")
 
         return lista
+
+    def remove_search(self, search_id):
+        """Deactivates a search using its unique rowid."""
+        stmt = "update chat_search set active = 0 where rowid = ?"
+        try:
+            self.__conn.execute(stmt, (search_id,))
+            self.__conn.commit()
+        except Exception as e:
+            logging.error(f"Error deactivating search with id {search_id}: {e}")
 
     def del_chat_search(self, chat_id, kws):
         stmt = "update chat_search set active = 0 where chat_id = ? and kws = ?"
