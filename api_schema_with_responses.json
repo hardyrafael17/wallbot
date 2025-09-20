@@ -1,0 +1,2780 @@
+{
+  "/api/v3/categories": {
+    "parameters": [
+      "context"
+    ],
+    "response_schema": {
+      "categories": [
+        {
+          "attributes": {
+            "height_cm": {
+              "title": "string",
+              "order": "number"
+            },
+            "is_refurbished": {
+              "title": "string",
+              "order": "number"
+            },
+            "version": {
+              "title": "string",
+              "order": "number"
+            },
+            "surface": {
+              "title": "string",
+              "order": "number"
+            },
+            "year": {
+              "title": "string",
+              "order": "number"
+            },
+            "terrace": {
+              "title": "string",
+              "order": "number"
+            },
+            "model": {
+              "title": "string",
+              "order": "number"
+            },
+            "pool": {
+              "title": "string",
+              "order": "number"
+            },
+            "storage_capacity": {
+              "title": "string",
+              "order": "number"
+            },
+            "warranty": {
+              "title": "string",
+              "order": "number"
+            },
+            "color": {
+              "title": "string",
+              "order": "number"
+            },
+            "publisher": {
+              "title": "string",
+              "order": "number"
+            },
+            "elevator": {
+              "title": "string",
+              "order": "number"
+            },
+            "book_format": {
+              "title": "string",
+              "order": "number"
+            },
+            "description": {
+              "title": "string",
+              "order": "number"
+            },
+            "seats": {
+              "title": "string",
+              "order": "number"
+            },
+            "size": {
+              "title": "string",
+              "order": "number"
+            },
+            "isbn": {
+              "title": "string",
+              "order": "number"
+            },
+            "garage": {
+              "title": "string",
+              "order": "number"
+            },
+            "type": {
+              "title": "string",
+              "order": "number"
+            },
+            "condition": {
+              "title": "string",
+              "order": "number"
+            },
+            "excluded": [
+              "list"
+            ],
+            "garden": {
+              "title": "string",
+              "order": "number"
+            },
+            "brand": {
+              "title": "string",
+              "order": "number"
+            },
+            "author": {
+              "title": "string",
+              "order": "number"
+            },
+            "license_plate": {
+              "title": "string",
+              "order": "number"
+            },
+            "subcategory_lv2": {
+              "title": "string",
+              "order": "number"
+            },
+            "is_pack": {
+              "title": "string",
+              "order": "number"
+            },
+            "horse_power": {
+              "title": "string",
+              "order": "number"
+            },
+            "width_cm": {
+              "title": "string",
+              "order": "number"
+            },
+            "km": {
+              "title": "string",
+              "order": "number"
+            },
+            "language": {
+              "title": "string",
+              "order": "number"
+            },
+            "rooms": {
+              "title": "string",
+              "order": "number"
+            },
+            "location": {
+              "title": "string",
+              "order": "number"
+            },
+            "doors": {
+              "title": "string",
+              "order": "number"
+            },
+            "subcategory": {
+              "title": "string",
+              "order": "number"
+            },
+            "length_cm": {
+              "title": "string",
+              "order": "number"
+            },
+            "financed_price": {
+              "title": "string",
+              "order": "number"
+            },
+            "operation": {
+              "title": "string",
+              "order": "number"
+            },
+            "bathrooms": {
+              "title": "string",
+              "order": "number"
+            }
+          },
+          "name": "string",
+          "icon": "string",
+          "subcategories": [
+            "list",
+            {
+              "attributes": {
+                "excluded": "string"
+              },
+              "name": "string",
+              "presentation": {
+                "title_color": "string",
+                "background_color": "string"
+              },
+              "subcategories": [
+                {
+                  "attributes": {
+                    "excluded": "string"
+                  },
+                  "name": "string",
+                  "presentation": {
+                    "image_url": "string",
+                    "title_color": "string",
+                    "background_color": "string"
+                  },
+                  "subcategories": [
+                    {
+                      "attributes": {
+                        "excluded": "string"
+                      },
+                      "parent_id": "number",
+                      "name": "string",
+                      "presentation": {
+                        "title_color": "string",
+                        "background_color": "string"
+                      },
+                      "subcategories": [
+                        "list"
+                      ],
+                      "id": "number",
+                      "path": "string"
+                    },
+                    {
+                      "attributes": {
+                        "excluded": "string"
+                      },
+                      "parent_id": "number",
+                      "name": "string",
+                      "presentation": {
+                        "title_color": "string",
+                        "background_color": "string"
+                      },
+                      "subcategories": [
+                        {
+                          "attributes": {
+                            "excluded": "string"
+                          },
+                          "parent_id": "number",
+                          "name": "string",
+                          "presentation": {
+                            "title_color": "string",
+                            "background_color": "string"
+                          },
+                          "subcategories": [
+                            "list"
+                          ],
+                          "id": "number",
+                          "path": "string"
+                        }
+                      ],
+                      "id": "number",
+                      "path": "string"
+                    }
+                  ],
+                  "path": "string",
+                  "id": "number",
+                  "parent_id": "number"
+                },
+                {
+                  "attributes": {
+                    "excluded": "string"
+                  },
+                  "name": "string",
+                  "subcategories": [
+                    "list",
+                    {
+                      "attributes": {
+                        "excluded": "string"
+                      },
+                      "name": "string",
+                      "presentation": {
+                        "title_color": "string",
+                        "background_color": "string"
+                      },
+                      "subcategories": [
+                        "list",
+                        {
+                          "attributes": {
+                            "excluded": "string"
+                          },
+                          "parent_id": "number",
+                          "name": "string",
+                          "presentation": {
+                            "title_color": "string",
+                            "background_color": "string"
+                          },
+                          "subcategories": [
+                            "list"
+                          ],
+                          "id": "number",
+                          "path": "string"
+                        }
+                      ],
+                      "path": "string",
+                      "id": "number",
+                      "parent_id": "number"
+                    },
+                    {
+                      "attributes": {
+                        "excluded": "string"
+                      },
+                      "parent_id": "number",
+                      "name": "string",
+                      "presentation": {
+                        "title_color": "string",
+                        "background_color": "string"
+                      },
+                      "subcategories": [
+                        "list"
+                      ],
+                      "id": "number",
+                      "path": "string"
+                    }
+                  ],
+                  "presentation": {
+                    "title_color": "string",
+                    "image_url": "string",
+                    "background_color": "string"
+                  },
+                  "path": "string",
+                  "id": "number",
+                  "parent_id": "number"
+                },
+                {
+                  "attributes": {
+                    "excluded": "string"
+                  },
+                  "name": "string",
+                  "subcategories": [
+                    "list",
+                    {
+                      "attributes": {
+                        "excluded": "string"
+                      },
+                      "parent_id": "number",
+                      "name": "string",
+                      "presentation": {
+                        "title_color": "string",
+                        "background_color": "string"
+                      },
+                      "subcategories": [
+                        "list"
+                      ],
+                      "id": "number",
+                      "path": "string"
+                    }
+                  ],
+                  "presentation": {
+                    "image_url": "string",
+                    "title_color": "string",
+                    "background_color": "string"
+                  },
+                  "path": "string",
+                  "id": "number",
+                  "parent_id": "number"
+                }
+              ],
+              "path": "string",
+              "id": "number",
+              "parent_id": "number"
+            },
+            {
+              "attributes": {
+                "excluded": "string"
+              },
+              "name": "string",
+              "subcategories": [
+                {
+                  "attributes": {
+                    "excluded": "string"
+                  },
+                  "name": "string",
+                  "presentation": {
+                    "image_url": "string",
+                    "title_color": "string",
+                    "background_color": "string"
+                  },
+                  "subcategories": [
+                    "list",
+                    {
+                      "attributes": {
+                        "excluded": "string"
+                      },
+                      "name": "string",
+                      "subcategories": [
+                        "list"
+                      ],
+                      "presentation": {
+                        "title_color": "string",
+                        "image_url": "string",
+                        "background_color": "string"
+                      },
+                      "path": "string",
+                      "id": "number",
+                      "parent_id": "number"
+                    }
+                  ],
+                  "path": "string",
+                  "id": "number",
+                  "parent_id": "number"
+                },
+                {
+                  "attributes": {
+                    "excluded": "string"
+                  },
+                  "name": "string",
+                  "presentation": {
+                    "title_color": "string",
+                    "background_color": "string"
+                  },
+                  "subcategories": [
+                    "list",
+                    {
+                      "attributes": {
+                        "excluded": "string"
+                      },
+                      "parent_id": "number",
+                      "name": "string",
+                      "presentation": {
+                        "title_color": "string",
+                        "background_color": "string"
+                      },
+                      "subcategories": [
+                        "list"
+                      ],
+                      "id": "number",
+                      "path": "string"
+                    }
+                  ],
+                  "path": "string",
+                  "id": "number",
+                  "parent_id": "number"
+                },
+                {
+                  "attributes": {
+                    "excluded": "string"
+                  },
+                  "name": "string",
+                  "presentation": {
+                    "title_color": "string",
+                    "image_url": "string",
+                    "background_color": "string"
+                  },
+                  "subcategories": [
+                    "list",
+                    {
+                      "attributes": {
+                        "excluded": "string"
+                      },
+                      "parent_id": "number",
+                      "name": "string",
+                      "presentation": {
+                        "title_color": "string",
+                        "background_color": "string"
+                      },
+                      "subcategories": [
+                        "list"
+                      ],
+                      "id": "number",
+                      "path": "string"
+                    }
+                  ],
+                  "path": "string",
+                  "id": "number",
+                  "parent_id": "number"
+                },
+                {
+                  "attributes": {
+                    "excluded": "string"
+                  },
+                  "name": "string",
+                  "subcategories": [
+                    "list",
+                    {
+                      "attributes": {
+                        "excluded": "string"
+                      },
+                      "name": "string",
+                      "subcategories": [
+                        "list"
+                      ],
+                      "presentation": {
+                        "title_color": "string",
+                        "image_url": "string",
+                        "background_color": "string"
+                      },
+                      "path": "string",
+                      "id": "number",
+                      "parent_id": "number"
+                    },
+                    {
+                      "attributes": {
+                        "excluded": "string"
+                      },
+                      "parent_id": "number",
+                      "name": "string",
+                      "presentation": {
+                        "title_color": "string",
+                        "background_color": "string"
+                      },
+                      "subcategories": [
+                        "list"
+                      ],
+                      "id": "number",
+                      "path": "string"
+                    }
+                  ],
+                  "presentation": {
+                    "title_color": "string",
+                    "image_url": "string",
+                    "background_color": "string"
+                  },
+                  "path": "string",
+                  "id": "number",
+                  "parent_id": "number"
+                }
+              ],
+              "presentation": {
+                "image_url": "string",
+                "title_color": "string",
+                "background_color": "string"
+              },
+              "path": "string",
+              "id": "number",
+              "parent_id": "number"
+            },
+            {
+              "attributes": {
+                "excluded": [
+                  "list"
+                ]
+              },
+              "name": "string",
+              "subcategories": [
+                {
+                  "attributes": {
+                    "excluded": "string"
+                  },
+                  "name": "string",
+                  "presentation": {
+                    "title_color": "string",
+                    "image_url": "string",
+                    "background_color": "string"
+                  },
+                  "subcategories": [
+                    "list",
+                    {
+                      "attributes": {
+                        "excluded": "string"
+                      },
+                      "parent_id": "number",
+                      "name": "string",
+                      "presentation": {
+                        "title_color": "string",
+                        "background_color": "string"
+                      },
+                      "subcategories": [
+                        "list"
+                      ],
+                      "id": "number",
+                      "path": "string"
+                    }
+                  ],
+                  "path": "string",
+                  "id": "number",
+                  "parent_id": "number"
+                },
+                {
+                  "attributes": {
+                    "excluded": "string"
+                  },
+                  "name": "string",
+                  "subcategories": [
+                    "list"
+                  ],
+                  "presentation": {
+                    "title_color": "string",
+                    "background_color": "string"
+                  },
+                  "path": "string",
+                  "id": "number",
+                  "parent_id": "number"
+                },
+                {
+                  "attributes": {
+                    "excluded": [
+                      "list"
+                    ]
+                  },
+                  "parent_id": "number",
+                  "name": "string",
+                  "presentation": {
+                    "title_color": "string",
+                    "background_color": "string"
+                  },
+                  "subcategories": [
+                    {
+                      "attributes": {
+                        "excluded": [
+                          "list"
+                        ]
+                      },
+                      "name": "string",
+                      "subcategories": [
+                        "list",
+                        {
+                          "attributes": {
+                            "excluded": [
+                              "list"
+                            ]
+                          },
+                          "parent_id": "number",
+                          "name": "string",
+                          "presentation": {
+                            "title_color": "string",
+                            "background_color": "string"
+                          },
+                          "subcategories": [
+                            "list"
+                          ],
+                          "id": "number",
+                          "path": "string"
+                        }
+                      ],
+                      "presentation": {
+                        "title_color": "string",
+                        "background_color": "string"
+                      },
+                      "path": "string",
+                      "id": "number",
+                      "parent_id": "number"
+                    }
+                  ],
+                  "id": "number",
+                  "path": "string"
+                },
+                {
+                  "attributes": {
+                    "excluded": [
+                      [
+                        [
+                          [
+                            [
+                              "list"
+                            ],
+                            "string"
+                          ],
+                          "string"
+                        ],
+                        "list",
+                        "string"
+                      ],
+                      "string"
+                    ]
+                  },
+                  "name": "string",
+                  "subcategories": [
+                    "list",
+                    {
+                      "attributes": {
+                        "excluded": "string"
+                      },
+                      "parent_id": "number",
+                      "name": "string",
+                      "presentation": {
+                        "title_color": "string",
+                        "background_color": "string"
+                      },
+                      "subcategories": [
+                        "list"
+                      ],
+                      "id": "number",
+                      "path": "string"
+                    },
+                    {
+                      "attributes": {
+                        "excluded": [
+                          [
+                            [
+                              [
+                                [
+                                  [
+                                    [
+                                      "list"
+                                    ],
+                                    "string"
+                                  ],
+                                  "string"
+                                ],
+                                "string"
+                              ],
+                              "string"
+                            ],
+                            "string"
+                          ],
+                          "string"
+                        ]
+                      },
+                      "name": "string",
+                      "presentation": {
+                        "title_color": "string",
+                        "background_color": "string"
+                      },
+                      "subcategories": [
+                        "list",
+                        {
+                          "attributes": {
+                            "excluded": "string"
+                          },
+                          "parent_id": "number",
+                          "name": "string",
+                          "presentation": {
+                            "title_color": "string",
+                            "background_color": "string"
+                          },
+                          "subcategories": [
+                            "list"
+                          ],
+                          "id": "number",
+                          "path": "string"
+                        }
+                      ],
+                      "path": "string",
+                      "id": "number",
+                      "parent_id": "number"
+                    }
+                  ],
+                  "presentation": {
+                    "title_color": "string",
+                    "background_color": "string"
+                  },
+                  "path": "string",
+                  "id": "number",
+                  "parent_id": "number"
+                }
+              ],
+              "presentation": {
+                "title_color": "string",
+                "image_url": "string",
+                "background_color": "string"
+              },
+              "path": "string",
+              "id": "number",
+              "parent_id": "number"
+            },
+            {
+              "attributes": {
+                "excluded": [
+                  "list"
+                ]
+              },
+              "name": "string",
+              "subcategories": [
+                {
+                  "attributes": {
+                    "excluded": [
+                      "list"
+                    ]
+                  },
+                  "name": "string",
+                  "presentation": {
+                    "title_color": "string",
+                    "background_color": "string"
+                  },
+                  "subcategories": [
+                    "list",
+                    {
+                      "attributes": {
+                        "excluded": [
+                          "list"
+                        ]
+                      },
+                      "name": "string",
+                      "presentation": {
+                        "title_color": "string",
+                        "background_color": "string"
+                      },
+                      "subcategories": [
+                        "list"
+                      ],
+                      "path": "string",
+                      "id": "number",
+                      "parent_id": "number"
+                    }
+                  ],
+                  "path": "string",
+                  "id": "number",
+                  "parent_id": "number"
+                },
+                {
+                  "attributes": {
+                    "excluded": [
+                      "list"
+                    ]
+                  },
+                  "name": "string",
+                  "subcategories": [
+                    "list",
+                    {
+                      "attributes": {
+                        "excluded": [
+                          "list"
+                        ]
+                      },
+                      "name": "string",
+                      "presentation": {
+                        "title_color": "string",
+                        "background_color": "string"
+                      },
+                      "subcategories": [
+                        "list"
+                      ],
+                      "path": "string",
+                      "id": "number",
+                      "parent_id": "number"
+                    }
+                  ],
+                  "presentation": {
+                    "title_color": "string",
+                    "image_url": "string",
+                    "background_color": "string"
+                  },
+                  "path": "string",
+                  "id": "number",
+                  "parent_id": "number"
+                },
+                {
+                  "attributes": {
+                    "excluded": [
+                      "list"
+                    ]
+                  },
+                  "name": "string",
+                  "subcategories": [
+                    "list"
+                  ],
+                  "presentation": {
+                    "title_color": "string",
+                    "background_color": "string"
+                  },
+                  "path": "string",
+                  "id": "number",
+                  "parent_id": "number"
+                },
+                {
+                  "attributes": {},
+                  "parent_id": "number",
+                  "name": "string",
+                  "presentation": {
+                    "title_color": "string",
+                    "background_color": "string"
+                  },
+                  "subcategories": [
+                    "list"
+                  ],
+                  "id": "number",
+                  "path": "string"
+                }
+              ],
+              "presentation": {
+                "title_color": "string",
+                "image_url": "string",
+                "background_color": "string"
+              },
+              "path": "string",
+              "id": "number",
+              "parent_id": "number"
+            },
+            {
+              "attributes": {},
+              "name": "string",
+              "subcategories": [
+                "list",
+                {
+                  "attributes": {},
+                  "parent_id": "number",
+                  "name": "string",
+                  "presentation": {
+                    "title_color": "string",
+                    "background_color": "string"
+                  },
+                  "subcategories": [
+                    "list"
+                  ],
+                  "id": "number",
+                  "path": "string"
+                }
+              ],
+              "presentation": {
+                "image_url": "string",
+                "title_color": "string",
+                "background_color": "string"
+              },
+              "path": "string",
+              "id": "number",
+              "parent_id": "number"
+            },
+            {
+              "attributes": {},
+              "parent_id": "number",
+              "name": "string",
+              "presentation": {
+                "image_url": "string",
+                "title_color": "string",
+                "background_color": "string"
+              },
+              "subcategories": [
+                "list"
+              ],
+              "id": "number",
+              "path": "string"
+            },
+            {
+              "attributes": {},
+              "parent_id": "number",
+              "name": "string",
+              "presentation": {
+                "image_url": "string",
+                "title_color": "string",
+                "background_color": "string"
+              },
+              "subcategories": [
+                {
+                  "attributes": {},
+                  "parent_id": "number",
+                  "name": "string",
+                  "presentation": {
+                    "title_color": "string",
+                    "background_color": "string"
+                  },
+                  "subcategories": [
+                    "list"
+                  ],
+                  "id": "number",
+                  "path": "string"
+                }
+              ],
+              "id": "number",
+              "path": "string"
+            }
+          ],
+          "presentation": {
+            "image_url": "string",
+            "title_color": "string",
+            "background_color": "string"
+          },
+          "category_leaf_selection_mandatory": "number",
+          "path": "string",
+          "vertical_id": "string",
+          "id": "number"
+        }
+      ]
+    }
+  },
+  "/api/v3/item-detail/components": {
+    "parameters": [
+      "item_id"
+    ],
+    "response_schema": {
+      "components": [
+        {
+          "type": "string",
+          "id": "string"
+        }
+      ]
+    }
+  },
+  "/api/v3/items/{id}": {
+    "parameters": [],
+    "response_schema": {
+      "title": {
+        "original": "string"
+      },
+      "supports_shipping": {
+        "flag": "number"
+      },
+      "taxonomy": [
+        {
+          "name": "string",
+          "icon": "string",
+          "id": "string",
+          "link": "string"
+        }
+      ],
+      "slug": "string",
+      "type_attributes": {
+        "color": {
+          "value": "string",
+          "title": "string",
+          "text": "string",
+          "icon_text": "string"
+        },
+        "condition": {
+          "value": "string",
+          "title": "string",
+          "text": "string",
+          "icon_text": "string"
+        },
+        "model": {
+          "value": "string",
+          "title": "string",
+          "text": "string",
+          "icon_text": "string"
+        },
+        "brand": {
+          "value": "string",
+          "title": "string",
+          "text": "string",
+          "icon_text": "string"
+        },
+        "storage_capacity": {
+          "value": "string",
+          "title": "string",
+          "text": "string",
+          "icon_text": "string"
+        },
+        "up_to_kg": {
+          "value": "string",
+          "title": "string",
+          "text": "string",
+          "icon_text": "string"
+        }
+      },
+      "price": {
+        "cash": {
+          "amount": "number",
+          "currency": "string"
+        }
+      },
+      "favorited": {
+        "flag": "number"
+      },
+      "characteristics": {
+        "text": "string",
+        "original": "string"
+      },
+      "images": [
+        {
+          "urls": {
+            "small": "string",
+            "medium": "string",
+            "big": "string"
+          },
+          "average_color": "string",
+          "id": "string"
+        }
+      ],
+      "modified_date": "number",
+      "hashtags": {
+        "values": [
+          "list"
+        ]
+      },
+      "share_url": "string",
+      "user": {
+        "id": "string",
+        "is_top_profile": "number"
+      },
+      "location": {
+        "latitude": "number",
+        "longitude": "number",
+        "approximated": "number",
+        "country_code": "string",
+        "city": "string",
+        "postal_code": "string"
+      },
+      "counters": {
+        "views": "number",
+        "favorites": "number",
+        "conversations": "number"
+      },
+      "description": {
+        "original": "string"
+      },
+      "characteristics_details": [
+        {
+          "value": "string",
+          "attribute": "string"
+        }
+      ],
+      "id": "string",
+      "type": "string",
+      "shipping": {
+        "item_is_shippable": "number",
+        "user_allows_shipping": "number"
+      }
+    }
+  },
+  "/api/v3/navigation/categories": {
+    "parameters": [],
+    "response_schema": {
+      "data": [
+        {
+          "name": "string",
+          "icon": "string",
+          "subcategories": [
+            {
+              "action": {
+                "action_type": "string",
+                "payload": {
+                  "link_url": "string"
+                }
+              },
+              "name": "string",
+              "id": "string"
+            },
+            {
+              "name": "string",
+              "subcategories": [
+                {
+                  "action": {
+                    "action_type": "string",
+                    "payload": {
+                      "link_url": "string"
+                    }
+                  },
+                  "name": "string",
+                  "id": "string"
+                }
+              ],
+              "id": "string",
+              "action": {
+                "action_type": "string",
+                "payload": {
+                  "link_url": "string"
+                }
+              }
+            }
+          ],
+          "id": "string",
+          "action": {
+            "action_type": "string",
+            "payload": {
+              "link_url": "string"
+            }
+          }
+        }
+      ],
+      "meta": {
+        "type": "string",
+        "title": "string",
+        "layout": "string",
+        "variant": "string"
+      }
+    }
+  },
+  "/api/v3/personalization/experiment": {
+    "parameters": [
+      "initiative",
+      "item_id"
+    ],
+    "response_schema": {
+      "data": [
+        {
+          "name": "string",
+          "icon": "string",
+          "subcategories": [
+            {
+              "action": {
+                "action_type": "string",
+                "payload": {
+                  "link_url": "string"
+                }
+              },
+              "name": "string",
+              "subcategories": [
+                {
+                  "action": {
+                    "action_type": "string",
+                    "payload": {
+                      "link_url": "string"
+                    }
+                  },
+                  "name": "string",
+                  "id": "string"
+                }
+              ],
+              "id": "string"
+            }
+          ],
+          "id": "string",
+          "action": {
+            "action_type": "string",
+            "payload": {
+              "link_url": "string"
+            }
+          }
+        }
+      ],
+      "meta": {
+        "title": "string",
+        "see_more": {
+          "text": "string",
+          "type": "string",
+          "action": {
+            "action_type": "string",
+            "payload": {
+              "link_url": "string"
+            }
+          }
+        },
+        "variant": "string",
+        "type": "string",
+        "layout": "string"
+      }
+    }
+  },
+  "/api/v3/search": {
+    "parameters": [
+      "brand",
+      "category_id",
+      "color",
+      "condition",
+      "has_warranty",
+      "keywords",
+      "latitude",
+      "longitude",
+      "max_sale_price",
+      "model",
+      "next_page",
+      "order_by",
+      "search_id",
+      "source",
+      "storage_capacity",
+      "subcategory_ids",
+      "time_filter"
+    ],
+    "response_schema": {
+      "stats": {
+        "filters_applied_count": "number"
+      },
+      "data": {
+        "section": {
+          "type": "string",
+          "payload": {
+            "title": [
+              "null",
+              "string"
+            ],
+            "items": [
+              {
+                "title": "string",
+                "is_refurbished": {
+                  "flag": "number"
+                },
+                "is_favoriteable": {
+                  "flag": "number"
+                },
+                "category_id": "number",
+                "taxonomy": [
+                  {
+                    "name": "string",
+                    "icon": [
+                      [
+                        "null",
+                        "string"
+                      ],
+                      "null"
+                    ],
+                    "id": "number"
+                  }
+                ],
+                "is_top_profile": {
+                  "flag": "number"
+                },
+                "bump": {
+                  "type": "string"
+                },
+                "modified_at": "number",
+                "favorited": {
+                  "flag": "number"
+                },
+                "user_id": "string",
+                "images": [
+                  {
+                    "urls": {
+                      "small": "string",
+                      "medium": "string",
+                      "big": "string"
+                    },
+                    "average_color": "string",
+                    "id": "string"
+                  }
+                ],
+                "has_warranty": {
+                  "flag": "number"
+                },
+                "location": {
+                  "latitude": "number",
+                  "longitude": "number",
+                  "postal_code": "string",
+                  "city": "string",
+                  "region": "string",
+                  "region2": "string",
+                  "country_code": "string"
+                },
+                "reserved": {
+                  "flag": "number"
+                },
+                "created_at": "number",
+                "description": "string",
+                "id": "string",
+                "price": {
+                  "amount": "number",
+                  "currency": "string"
+                },
+                "shipping": {
+                  "item_is_shippable": "number",
+                  "user_allows_shipping": "number"
+                },
+                "web_slug": "string"
+              },
+              {
+                "title": "string",
+                "is_refurbished": {
+                  "flag": "number"
+                },
+                "is_favoriteable": {
+                  "flag": "number"
+                },
+                "taxonomy": [
+                  {
+                    "name": "string",
+                    "icon": [
+                      [
+                        "null",
+                        "string"
+                      ],
+                      "null"
+                    ],
+                    "id": "number"
+                  },
+                  {
+                    "name": "string",
+                    "icon": [
+                      [
+                        [
+                          "null",
+                          "string"
+                        ],
+                        "null"
+                      ],
+                      "null"
+                    ],
+                    "id": "number"
+                  }
+                ],
+                "discount": {
+                  "previous_price": {
+                    "amount": "number",
+                    "currency": "string"
+                  },
+                  "percentage": "number"
+                },
+                "user_id": "string",
+                "has_warranty": {
+                  "flag": "number"
+                },
+                "reserved": {
+                  "flag": "number"
+                },
+                "description": "string",
+                "shipping": {
+                  "user_allows_shipping": "number",
+                  "item_is_shippable": "number",
+                  "cost_configuration_id": "string"
+                },
+                "web_slug": "string",
+                "category_id": "number",
+                "is_top_profile": {
+                  "flag": "number"
+                },
+                "bump": {
+                  "type": "string"
+                },
+                "modified_at": "number",
+                "favorited": {
+                  "flag": "number"
+                },
+                "images": [
+                  {
+                    "urls": {
+                      "small": "string",
+                      "medium": "string",
+                      "big": "string"
+                    },
+                    "average_color": "string",
+                    "id": "string"
+                  }
+                ],
+                "location": {
+                  "latitude": "number",
+                  "longitude": "number",
+                  "postal_code": "string",
+                  "city": "string",
+                  "region": "string",
+                  "region2": "string",
+                  "country_code": "string"
+                },
+                "created_at": "number",
+                "id": "string",
+                "price": {
+                  "amount": "number",
+                  "currency": "string"
+                }
+              },
+              {
+                "title": "string",
+                "is_refurbished": {
+                  "flag": "number"
+                },
+                "is_favoriteable": {
+                  "flag": "number"
+                },
+                "taxonomy": [
+                  {
+                    "name": "string",
+                    "icon": [
+                      [
+                        "null",
+                        "string"
+                      ],
+                      "null"
+                    ],
+                    "id": "number"
+                  }
+                ],
+                "discount": {
+                  "previous_price": {
+                    "amount": "number",
+                    "currency": "string"
+                  },
+                  "percentage": "number"
+                },
+                "user_id": "string",
+                "has_warranty": {
+                  "flag": "number"
+                },
+                "reserved": {
+                  "flag": "number"
+                },
+                "description": "string",
+                "shipping": {
+                  "user_allows_shipping": "number",
+                  "item_is_shippable": "number",
+                  "cost_configuration_id": "string"
+                },
+                "web_slug": "string",
+                "category_id": "number",
+                "is_top_profile": {
+                  "flag": "number"
+                },
+                "bump": {
+                  "type": "string"
+                },
+                "modified_at": "number",
+                "favorited": {
+                  "flag": "number"
+                },
+                "images": [
+                  {
+                    "urls": {
+                      "small": "string",
+                      "medium": "string",
+                      "big": "string"
+                    },
+                    "average_color": "string",
+                    "id": "string"
+                  }
+                ],
+                "location": {
+                  "latitude": "number",
+                  "longitude": "number",
+                  "postal_code": "string",
+                  "city": "string",
+                  "region": "string",
+                  "region2": "string",
+                  "country_code": "string"
+                },
+                "created_at": "number",
+                "id": "string",
+                "price": {
+                  "amount": "number",
+                  "currency": "string"
+                }
+              },
+              {
+                "title": "string",
+                "is_refurbished": {
+                  "flag": "number"
+                },
+                "is_favoriteable": {
+                  "flag": "number"
+                },
+                "taxonomy": [
+                  {
+                    "name": "string",
+                    "icon": [
+                      [
+                        "null",
+                        "string"
+                      ],
+                      "null"
+                    ],
+                    "id": "number"
+                  }
+                ],
+                "user_id": "string",
+                "has_warranty": {
+                  "flag": "number"
+                },
+                "reserved": {
+                  "flag": "number"
+                },
+                "description": "string",
+                "shipping": {
+                  "user_allows_shipping": "number",
+                  "item_is_shippable": "number",
+                  "cost_configuration_id": "string"
+                },
+                "web_slug": "string",
+                "category_id": "number",
+                "is_top_profile": {
+                  "flag": "number"
+                },
+                "bump": {
+                  "type": "string"
+                },
+                "modified_at": "number",
+                "favorited": {
+                  "flag": "number"
+                },
+                "images": [
+                  {
+                    "urls": {
+                      "small": "string",
+                      "medium": "string",
+                      "big": "string"
+                    },
+                    "average_color": "string",
+                    "id": "string"
+                  }
+                ],
+                "location": {
+                  "latitude": "number",
+                  "longitude": "number",
+                  "postal_code": "string",
+                  "city": "string",
+                  "region": "string",
+                  "region2": "string",
+                  "country_code": "string"
+                },
+                "created_at": "number",
+                "id": "string",
+                "price": {
+                  "amount": "number",
+                  "currency": "string"
+                }
+              }
+            ],
+            "order": "string"
+          }
+        },
+        "tracking": {
+          "variant": "null",
+          "location": {
+            "latitude": "number",
+            "longitude": "number",
+            "country_code": "string"
+          },
+          "section": "string",
+          "event": "string"
+        }
+      },
+      "meta": {
+        "next_section_type": [
+          "null",
+          "string"
+        ],
+        "next_page": [
+          "null",
+          "string"
+        ]
+      }
+    }
+  },
+  "/api/v3/search/components": {
+    "parameters": [
+      "brand",
+      "category_id",
+      "color",
+      "condition",
+      "has_warranty",
+      "keywords",
+      "max_sale_price",
+      "model",
+      "order_by",
+      "source",
+      "storage_capacity",
+      "subcategory_ids",
+      "time_filter"
+    ],
+    "response_schema": {
+      "components": [
+        "list"
+      ],
+      "filters": {
+        "category_id": "string",
+        "subcategory_ids": "string",
+        "time_filter": "string",
+        "keywords": "string",
+        "brand": "string",
+        "source": "string",
+        "model": "string",
+        "has_warranty": "string",
+        "storage_capacity": "string",
+        "color": "string",
+        "order_by": "string",
+        "max_sale_price": "string",
+        "condition": "string"
+      }
+    }
+  },
+  "/api/v3/search/filters/brand": {
+    "parameters": [
+      "brand",
+      "category_id",
+      "color",
+      "condition",
+      "has_warranty",
+      "keywords",
+      "max_sale_price",
+      "model",
+      "options_page_key",
+      "source",
+      "storage_capacity",
+      "subcategory_ids",
+      "time_filter"
+    ],
+    "response_schema": {
+      "title": "string",
+      "pagination": {
+        "options_page_key": "string",
+        "options_page_size": "number"
+      },
+      "options": [
+        {
+          "title": "string",
+          "id": "string"
+        }
+      ],
+      "id": "string",
+      "type": "string"
+    }
+  },
+  "/api/v3/search/filters/model": {
+    "parameters": [
+      "brand",
+      "category_id",
+      "color",
+      "condition",
+      "has_warranty",
+      "keywords",
+      "max_sale_price",
+      "model",
+      "options_page_key",
+      "source",
+      "storage_capacity",
+      "subcategory_ids",
+      "time_filter"
+    ],
+    "response_schema": {
+      "title": "string",
+      "options": [
+        {
+          "title": "string",
+          "id": "string"
+        }
+      ],
+      "id": "string",
+      "type": "string",
+      "pagination": {
+        "options_page_key": "string",
+        "options_page_size": "number"
+      }
+    }
+  },
+  "/api/v3/search/filters/regular-filters": {
+    "parameters": [
+      "brand",
+      "category_id",
+      "condition",
+      "has_warranty",
+      "keywords",
+      "max_sale_price",
+      "model",
+      "order_by",
+      "search_filters_context",
+      "source",
+      "storage_capacity",
+      "subcategory_ids",
+      "time_filter"
+    ],
+    "response_schema": {
+      "filter_sections": [
+        {
+          "filters": [
+            {
+              "title": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "max_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "min_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "list_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                }
+              },
+              "type_data": {
+                "is_search_enabled": "number",
+                "source_data": {
+                  "options_structure": "string",
+                  "options_data": {
+                    "options": [
+                      {
+                        "title": "string",
+                        "description": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      }
+                    ]
+                  }
+                },
+                "unit": "string",
+                "selection": "string",
+                "source": "string",
+                "steps": [
+                  {
+                    "end": "number",
+                    "increment": "number",
+                    "start": "number"
+                  }
+                ],
+                "format": "string"
+              },
+              "id": "string",
+              "type": "string"
+            },
+            {
+              "title": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "toggle_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "list_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "longitude_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "distance_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "latitude_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                }
+              },
+              "type_data": {
+                "is_search_enabled": "number",
+                "source_data": {
+                  "options_structure": "string",
+                  "options_data": {
+                    "options": [
+                      {
+                        "title": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      }
+                    ]
+                  }
+                },
+                "selection": "string",
+                "label": "string",
+                "source": "string"
+              },
+              "id": "string",
+              "type": "string"
+            },
+            {
+              "title": "string",
+              "type": "string",
+              "type_data": {},
+              "id": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "root_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "node_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "filters": [
+            {
+              "title": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "max_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "toggle_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "list_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "min_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                }
+              },
+              "type_data": {
+                "source_data": {
+                  "options_data": {
+                    "options": [
+                      {
+                        "title": "string",
+                        "description": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      },
+                      {
+                        "title": "string",
+                        "icon": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      },
+                      {
+                        "title": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      }
+                    ]
+                  },
+                  "url": "string",
+                  "options_structure": "string",
+                  "selected_options": [
+                    "list"
+                  ]
+                },
+                "format": "string",
+                "label": "string",
+                "is_search_enabled": "number",
+                "unit": "string",
+                "selection": "string",
+                "steps": [
+                  {
+                    "end": "number",
+                    "increment": "number",
+                    "start": "number"
+                  }
+                ],
+                "source": "string"
+              },
+              "id": "string",
+              "type": "string"
+            },
+            {
+              "title": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "toggle_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "list_param": {
+                  "param_key": "string",
+                  "param_value": "string"
+                },
+                "longitude_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "distance_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "latitude_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                }
+              },
+              "type_data": {
+                "is_search_enabled": "number",
+                "source_data": {
+                  "options_structure": "string",
+                  "options_data": {
+                    "options": [
+                      {
+                        "title": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      }
+                    ]
+                  }
+                },
+                "selection": "string",
+                "label": "string",
+                "source": "string"
+              },
+              "id": "string",
+              "type": "string"
+            },
+            {
+              "title": "string",
+              "type": "string",
+              "type_data": {
+                "selected_id": "string",
+                "root_id": "string",
+                "title": "string"
+              },
+              "id": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "root_param": {
+                  "param_key": "string",
+                  "param_value": "string"
+                },
+                "node_param": {
+                  "param_key": "string",
+                  "param_value": "string"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "filters": [
+            {
+              "title": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "max_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "toggle_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "list_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "min_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                }
+              },
+              "type_data": {
+                "source_data": {
+                  "options_data": {
+                    "options": [
+                      {
+                        "title": "string",
+                        "description": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      },
+                      {
+                        "title": "string",
+                        "icon": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      }
+                    ]
+                  },
+                  "url": "string",
+                  "options_structure": "string",
+                  "selected_options": [
+                    "list"
+                  ]
+                },
+                "format": "string",
+                "label": "string",
+                "is_search_enabled": "number",
+                "unit": "string",
+                "selection": "string",
+                "steps": [
+                  {
+                    "end": "number",
+                    "increment": "number",
+                    "start": "number"
+                  }
+                ],
+                "source": "string"
+              },
+              "id": "string",
+              "type": "string"
+            },
+            {
+              "title": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "toggle_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "list_param": {
+                  "param_key": "string",
+                  "param_value": "string"
+                },
+                "longitude_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "distance_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "latitude_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                }
+              },
+              "type_data": {
+                "is_search_enabled": "number",
+                "source_data": {
+                  "options_structure": "string",
+                  "options_data": {
+                    "options": [
+                      {
+                        "title": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      }
+                    ]
+                  }
+                },
+                "selection": "string",
+                "label": "string",
+                "source": "string"
+              },
+              "id": "string",
+              "type": "string"
+            },
+            {
+              "title": "string",
+              "type": "string",
+              "type_data": {
+                "selected_id": "string",
+                "root_id": "string",
+                "title": "string"
+              },
+              "id": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "root_param": {
+                  "param_key": "string",
+                  "param_value": "string"
+                },
+                "node_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "filters": [
+            {
+              "title": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "max_param": {
+                  "param_key": "string",
+                  "param_value": "number"
+                },
+                "toggle_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "list_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "min_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                }
+              },
+              "type_data": {
+                "source_data": {
+                  "options_data": {
+                    "options": [
+                      {
+                        "title": "string",
+                        "description": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      },
+                      {
+                        "title": "string",
+                        "icon": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      },
+                      {
+                        "title": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      }
+                    ]
+                  },
+                  "url": "string",
+                  "options_structure": "string",
+                  "selected_options": [
+                    "list"
+                  ]
+                },
+                "format": "string",
+                "selected_max": "number",
+                "label": "string",
+                "is_search_enabled": "number",
+                "unit": "string",
+                "selection": "string",
+                "steps": [
+                  {
+                    "end": "number",
+                    "increment": "number",
+                    "start": "number"
+                  }
+                ],
+                "source": "string"
+              },
+              "id": "string",
+              "type": "string"
+            },
+            {
+              "title": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "toggle_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "list_param": {
+                  "param_key": "string",
+                  "param_value": "string"
+                },
+                "longitude_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "distance_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "latitude_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                }
+              },
+              "type_data": {
+                "is_search_enabled": "number",
+                "source_data": {
+                  "options_structure": "string",
+                  "options_data": {
+                    "options": [
+                      {
+                        "title": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      }
+                    ]
+                  }
+                },
+                "selection": "string",
+                "label": "string",
+                "source": "string"
+              },
+              "id": "string",
+              "type": "string"
+            },
+            {
+              "title": "string",
+              "type": "string",
+              "type_data": {
+                "selected_id": "string",
+                "root_id": "string",
+                "title": "string"
+              },
+              "id": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "root_param": {
+                  "param_key": "string",
+                  "param_value": "string"
+                },
+                "node_param": {
+                  "param_key": "string",
+                  "param_value": "string"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "filters": [
+            {
+              "title": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "max_param": {
+                  "param_key": "string",
+                  "param_value": "number"
+                },
+                "toggle_param": {
+                  "param_key": "string",
+                  "param_value": "number"
+                },
+                "list_param": {
+                  "param_key": "string",
+                  "param_value": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "min_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                }
+              },
+              "type_data": {
+                "source_data": {
+                  "options_data": {
+                    "options": [
+                      {
+                        "title": "string",
+                        "description": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      },
+                      {
+                        "title": "string",
+                        "icon": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      },
+                      {
+                        "title": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      }
+                    ]
+                  },
+                  "url": "string",
+                  "options_structure": "string",
+                  "selected_options": [
+                    {
+                      "title": "string",
+                      "id": "string"
+                    }
+                  ]
+                },
+                "format": "string",
+                "value": "number",
+                "label": "string",
+                "selected_max": "number",
+                "is_search_enabled": "number",
+                "unit": "string",
+                "selection": "string",
+                "steps": [
+                  {
+                    "end": "number",
+                    "increment": "number",
+                    "start": "number"
+                  }
+                ],
+                "source": "string"
+              },
+              "id": "string",
+              "type": "string"
+            },
+            {
+              "title": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "toggle_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "list_param": {
+                  "param_key": "string",
+                  "param_value": "string"
+                },
+                "longitude_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "distance_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "latitude_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                }
+              },
+              "type_data": {
+                "is_search_enabled": "number",
+                "source_data": {
+                  "options_structure": "string",
+                  "options_data": {
+                    "options": [
+                      {
+                        "title": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      }
+                    ]
+                  }
+                },
+                "selection": "string",
+                "label": "string",
+                "source": "string"
+              },
+              "id": "string",
+              "type": "string"
+            },
+            {
+              "title": "string",
+              "type": "string",
+              "type_data": {
+                "selected_id": "string",
+                "root_id": "string",
+                "title": "string"
+              },
+              "id": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "root_param": {
+                  "param_key": "string",
+                  "param_value": "string"
+                },
+                "node_param": {
+                  "param_key": "string",
+                  "param_value": "string"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "filters": [
+            {
+              "title": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "max_param": {
+                  "param_key": "string",
+                  "param_value": "number"
+                },
+                "toggle_param": {
+                  "param_key": "string",
+                  "param_value": "number"
+                },
+                "list_param": {
+                  "param_key": "string",
+                  "param_value": [
+                    [
+                      "null",
+                      "string"
+                    ],
+                    "null"
+                  ]
+                },
+                "min_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                }
+              },
+              "type_data": {
+                "source_data": {
+                  "options_data": {
+                    "options": [
+                      {
+                        "title": "string",
+                        "description": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      },
+                      {
+                        "title": "string",
+                        "icon": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      },
+                      {
+                        "title": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      }
+                    ]
+                  },
+                  "url": "string",
+                  "options_structure": "string",
+                  "selected_options": [
+                    "list",
+                    {
+                      "title": "string",
+                      "id": "string"
+                    }
+                  ]
+                },
+                "format": "string",
+                "value": "number",
+                "label": "string",
+                "selected_max": "number",
+                "is_search_enabled": "number",
+                "unit": "string",
+                "selection": "string",
+                "steps": [
+                  {
+                    "end": "number",
+                    "increment": "number",
+                    "start": "number"
+                  }
+                ],
+                "source": "string"
+              },
+              "id": "string",
+              "type": "string"
+            },
+            {
+              "title": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "toggle_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "list_param": {
+                  "param_key": "string",
+                  "param_value": "string"
+                },
+                "longitude_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "distance_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "latitude_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                }
+              },
+              "type_data": {
+                "is_search_enabled": "number",
+                "source_data": {
+                  "options_structure": "string",
+                  "options_data": {
+                    "options": [
+                      {
+                        "title": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      }
+                    ]
+                  }
+                },
+                "selection": "string",
+                "label": "string",
+                "source": "string"
+              },
+              "id": "string",
+              "type": "string"
+            },
+            {
+              "title": "string",
+              "type": "string",
+              "type_data": {
+                "selected_id": "string",
+                "root_id": "string",
+                "title": "string"
+              },
+              "id": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "root_param": {
+                  "param_key": "string",
+                  "param_value": "string"
+                },
+                "node_param": {
+                  "param_key": "string",
+                  "param_value": "string"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "filters": [
+            {
+              "title": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "max_param": {
+                  "param_key": "string",
+                  "param_value": "number"
+                },
+                "toggle_param": {
+                  "param_key": "string",
+                  "param_value": "number"
+                },
+                "list_param": {
+                  "param_key": "string",
+                  "param_value": [
+                    [
+                      [
+                        "null",
+                        "string"
+                      ],
+                      "null"
+                    ],
+                    "null"
+                  ]
+                },
+                "min_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                }
+              },
+              "type_data": {
+                "source_data": {
+                  "options_data": {
+                    "options": [
+                      {
+                        "title": "string",
+                        "description": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      },
+                      {
+                        "title": "string",
+                        "icon": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      },
+                      {
+                        "title": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      }
+                    ]
+                  },
+                  "url": "string",
+                  "options_structure": "string",
+                  "selected_options": [
+                    "list"
+                  ]
+                },
+                "format": "string",
+                "value": "number",
+                "label": "string",
+                "selected_max": "number",
+                "is_search_enabled": "number",
+                "unit": "string",
+                "selection": "string",
+                "steps": [
+                  {
+                    "end": "number",
+                    "increment": "number",
+                    "start": "number"
+                  }
+                ],
+                "source": "string"
+              },
+              "id": "string",
+              "type": "string"
+            },
+            {
+              "title": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "toggle_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "list_param": {
+                  "param_key": "string",
+                  "param_value": "string"
+                },
+                "longitude_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "distance_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                },
+                "latitude_param": {
+                  "param_key": "string",
+                  "param_value": "null"
+                }
+              },
+              "type_data": {
+                "is_search_enabled": "number",
+                "source_data": {
+                  "options_structure": "string",
+                  "options_data": {
+                    "options": [
+                      {
+                        "title": "string",
+                        "is_selected": "number",
+                        "id": "string"
+                      }
+                    ]
+                  }
+                },
+                "selection": "string",
+                "label": "string",
+                "source": "string"
+              },
+              "id": "string",
+              "type": "string"
+            },
+            {
+              "title": "string",
+              "type": "string",
+              "type_data": {
+                "selected_id": "string",
+                "root_id": "string",
+                "title": "string"
+              },
+              "id": "string",
+              "reload_when_changed": "number",
+              "search_params": {
+                "root_param": {
+                  "param_key": "string",
+                  "param_value": "string"
+                },
+                "node_param": {
+                  "param_key": "string",
+                  "param_value": "string"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "selected_filters": [
+        {
+          "value": {
+            "max": "number",
+            "value": "string",
+            "boolean_value": "number",
+            "values": "string"
+          },
+          "id": "string",
+          "value_type": "string"
+        },
+        {
+          "value": {
+            "value": "string",
+            "max": "number",
+            "values": "string"
+          },
+          "id": "string",
+          "value_type": "string"
+        },
+        {
+          "value": {
+            "value": "string",
+            "values": "string"
+          },
+          "id": "string",
+          "value_type": "string"
+        },
+        {
+          "value_type": "string",
+          "value": {
+            "value": "string"
+          },
+          "id": "string"
+        }
+      ]
+    }
+  },
+  "/api/v3/suggesters/nonlocated": {
+    "parameters": [
+      "keyword"
+    ],
+    "response_schema": {
+      "suggestions": [
+        {
+          "regular_suggestion": {
+            "suggestion": {
+              "text": "string",
+              "highlight": "string",
+              "subtitle": "string"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "/api/v3/users/{id}": {
+    "parameters": [],
+    "response_schema": {
+      "image": {
+        "id": "string",
+        "original_width": "number",
+        "original_height": "number",
+        "average_hex_color": "string",
+        "urls_by_size": {
+          "small": "string",
+          "xmall": "string",
+          "original": "string",
+          "large": "string",
+          "xlarge": "string",
+          "medium": "string"
+        }
+      },
+      "featured": "number",
+      "register_date": "number",
+      "micro_name": "string",
+      "location": {
+        "approximated_latitude": "number",
+        "approximated_longitude": "number",
+        "city": "string",
+        "zip": "string",
+        "country_code": "string",
+        "approxRadius": "number",
+        "approximated_location": "number"
+      },
+      "listing_protected": "number",
+      "is_top_profile": "number",
+      "url_share": "string",
+      "gender": "string",
+      "id": "string",
+      "preferences": {},
+      "type": "string",
+      "web_slug": "string",
+      "financing": "number"
+    }
+  },
+  "/api/v3/users/{id}/extra-info": {
+    "parameters": [],
+    "response_schema": {
+      "validations": {
+        "email": "number",
+        "mobile": "number",
+        "facebook": "number",
+        "google_plus": "number",
+        "linkedin": "number",
+        "gender": "number",
+        "location": "number",
+        "picture": "number",
+        "level": "string",
+        "birthday": "number",
+        "kyc": "number"
+      },
+      "activity_level": "string",
+      "scoring_stars": "number"
+    }
+  }
+}
