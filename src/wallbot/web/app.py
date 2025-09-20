@@ -1,6 +1,9 @@
 import logging
 from flask import Flask, render_template, request, redirect, url_for, flash
 
+from src.wallbot.wallapop.api_client import WallapopClient
+from src.wallbot.wallapop.api_models import ApiSearchItem, ApiPrice, ApiImage, ApiImageUrls, ApiLocation, ApiShipping, ApiTaxonomy, ApiDiscount
+
 
 def _parse_search_args(args):
     """
@@ -29,6 +32,77 @@ def _parse_search_args(args):
     return kws, params
 
 
+def _parse_api_item(item_json):
+    """Parses a JSON item from Wallapop API into an ApiSearchItem object."""
+    try:
+        # Helper to safely get nested dictionary values
+        def get_flag(key):
+            return item_json.get(key, {}).get('flag', 0) == 1
+
+        images = [
+            ApiImage(
+                id=img['id'],
+                urls=ApiImageUrls(**img['urls']),
+                average_color=img['average_color']
+            ) for img in item_json.get('images', [])
+        ]
+        
+        location_data = item_json.get('location', {})
+        location = ApiLocation(
+            latitude=location_data.get('latitude'),
+            longitude=location_data.get('longitude'),
+            postal_code=location_data.get('postal_code'),
+            city=location_data.get('city'),
+            country_code=location_data.get('country_code'),
+            region=location_data.get('region'),
+            region2=location_data.get('region2')
+        )
+
+        shipping_data = item_json.get('shipping', {})
+        shipping = ApiShipping(
+            item_is_shippable=shipping_data.get('item_is_shippable', False),
+            user_allows_shipping=shipping_data.get('user_allows_shipping', False),
+            cost_configuration_id=shipping_data.get('cost_configuration_id')
+        )
+
+        taxonomy = [ApiTaxonomy(**tax) for tax in item_json.get('taxonomy', [])]
+        
+        discount_data = item_json.get('discount')
+        discount = None
+        if discount_data:
+            discount = ApiDiscount(
+                percentage=discount_data['percentage'],
+                previous_price=ApiPrice(**discount_data['previous_price'])
+            )
+
+        return ApiSearchItem(
+            id=item_json['id'],
+            title=item_json['title'],
+            description=item_json['description'],
+            price=ApiPrice(**item_json['price']),
+            category_id=item_json['category_id'],
+            user_id=item_json['user_id'],
+            created_at=item_json['created_at'],
+            modified_at=item_json['modified_at'],
+            web_slug=item_json['web_slug'],
+            images=images,
+            location=location,
+            shipping=shipping,
+            taxonomy=taxonomy,
+            is_refurbished=get_flag('is_refurbished'),
+            is_favoriteable=get_flag('is_favoriteable'),
+            is_top_profile=get_flag('is_top_profile'),
+            has_warranty=get_flag('has_warranty'),
+            reserved=get_flag('reserved'),
+            favorited=get_flag('favorited'),
+            bump=item_json.get('bump', {}),
+            discount=discount
+        )
+    except (KeyError, TypeError) as e:
+        logging.error(f"Error parsing API item: {e} - Item: {item_json}")
+        return None
+
+
 def create_web_app(db):
     """
     Creates and configures the Flask web application.
@@ -38,10 +112,11 @@ def create_web_app(db):
     app = Flask(__name__)
     # A secret key is required for flashing messages
     app.secret_key = 'supersecretkey'
+    wallapop_client = WallapopClient()
 
     @app.route('/')
     def index():
-        return redirect(url_for('manage_searches'))
+        return redirect(url_for('manual_search'))
 
     @app.route('/searches')
     def manage_searches():
@@ -85,5 +160,33 @@ def create_web_app(db):
         db.remove_search(search_id)
         flash(f"Search #{search_id} has been deleted.", "success")
         return redirect(url_for('manage_searches'))
+
+    @app.route('/manual-search', methods=['GET', 'POST'])
+    def manual_search():
+        results = []
+        if request.method == 'POST':
+            search_params = {
+                'keywords': request.form.get('keywords'),
+                'min_price': request.form.get('min_price'),
+                'max_price': request.form.get('max_price'),
+                'category_ids': request.form.get('category_ids'),
+                'order_by': request.form.get('order_by'),
+                'latitude': request.form.get('latitude'),
+                'longitude': request.form.get('longitude'),
+                'distance': request.form.get('distance'),
+            }
+            # Filter out empty params
+            search_params = {k: v for k, v in search_params.items() if v}
+            
+            response_json = wallapop_client.search_items_from_web(**search_params)
+            
+            if response_json and 'data' in response_json:
+                raw_items = response_json['data'].get('section', {}).get('payload', {}).get('items', [])
+                results = [_parse_api_item(item) for item in raw_items]
+                results = [item for item in results if item] # Filter out parsing errors
+                if not results:
+                    flash("No results found for your search.", "info")
+
+        return render_template('manual_search.html', results=results)
 
     return app

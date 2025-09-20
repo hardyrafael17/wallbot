@@ -63,8 +63,8 @@ wallapop_bot/
 ├── wallapop/
 │   ├── __init__.py
 │   ├── api_client.py
-│   ├── search.py
-│   └── item_processor.py
+│   ├── api_models.py
+│   └── monitor.py
 ├── utils/
 │   ├── __init__.py
 │   ├── logger.py

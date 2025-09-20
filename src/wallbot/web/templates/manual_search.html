@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Search</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Wallbot</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/searches">Manage Searches</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/manual-search">Manual Search</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        <h1>Manual Wallapop Search</h1>
+        <form action="/manual-search" method="post">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="keywords" class="form-label">Keywords</label>
+                    <input type="text" class="form-control" id="keywords" name="keywords" value="{{ request.form.keywords }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="min_price" class="form-label">Min Price</label>
+                    <input type="number" class="form-control" id="min_price" name="min_price" value="{{ request.form.min_price }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="max_price" class="form-label">Max Price</label>
+                    <input type="number" class="form-control" id="max_price" name="max_price" value="{{ request.form.max_price }}">
+                </div>
+                <div class="col-md-6">
+                    <label for="category_ids" class="form-label">Category IDs (comma-separated)</label>
+                    <input type="text" class="form-control" id="category_ids" name="category_ids" value="{{ request.form.category_ids }}">
+                </div>
+                <div class="col-md-6">
+                    <label for="order_by" class="form-label">Order By</label>
+                    <select class="form-select" id="order_by" name="order_by">
+                        <option value="creation_date_des" {% if request.form.order_by == 'creation_date_des' %}selected{% endif %}>Newest</option>
+                        <option value="distance_asc" {% if request.form.order_by == 'distance_asc' %}selected{% endif %}>Closest</option>
+                        <option value="price_asc" {% if request.form.order_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_des" {% if request.form.order_by == 'price_des' %}selected{% endif %}>Price: High to Low</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="latitude" class="form-label">Latitude</label>
+                    <input type="text" class="form-control" id="latitude" name="latitude" value="{{ request.form.latitude }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="longitude" class="form-label">Longitude</label>
+                    <input type="text" class="form-control" id="longitude" name="longitude" value="{{ request.form.longitude }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="distance" class="form-label">Distance (meters)</label>
+                    <input type="text" class="form-control" id="distance" name="distance" value="{{ request.form.distance }}">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Search</button>
+        </form>
+
+        {% if results %}
+        <h2 class="mt-5">Search Results</h2>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Title</th>
+                        <th>Price</th>
+                        <th>Description</th>
+                        <th>Location</th>
+                        <th>Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in results %}
+                    <tr>
+                        <td><img src="{{ item.images[0].urls.small }}" alt="{{ item.title }}" width="50"></td>
+                        <td>{{ item.title }}</td>
+                        <td>{{ item.price.amount }} {{ item.price.currency }}</td>
+                        <td>{{ item.description[:100] }}...</td>
+                        <td>{{ item.location.city }}</td>
+                        <td><a href="https://wallapop.com/item/{{ item.web_slug }}" target="_blank">View</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
