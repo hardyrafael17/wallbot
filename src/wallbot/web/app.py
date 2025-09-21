@@ -169,11 +169,12 @@ def create_web_app(db):
                 'keywords': request.form.get('keywords'),
                 'min_price': request.form.get('min_price'),
                 'max_price': request.form.get('max_price'),
-                'category_ids': request.form.get('category_ids'),
-                'order_by': request.form.get('order_by'),
+                'category_id': request.form.get('category_id'),
+                'time_filter': request.form.get('time_filter'),
                 'latitude': request.form.get('latitude'),
                 'longitude': request.form.get('longitude'),
-                'distance': request.form.get('distance'),
+                'distance_in_km': request.form.get('distance_in_km'),
+                'order_by': request.form.get('order_by'),
             }
             # Filter out empty params
             search_params = {k: v for k, v in search_params.items() if v}

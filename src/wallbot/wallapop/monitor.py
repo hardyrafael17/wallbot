@@ -51,7 +51,7 @@ class WallapopMonitor:
         for search in searches:
             try:
                 response = self.client.search_items(search)
-                logging.info(f"Respuesta de API: {response}")
+                # logging.info(f"Respuesta de API: {response}")
                 if response:
                     self._handle_response(search, response)
             except Exception as e:
@@ -76,13 +76,13 @@ class WallapopMonitor:
         item_user = item['user_id']
         item_web_slug = item['web_slug']
 
-        logging.info(
-            'Encontrado: id=%s, price=%s, title=%s, user=%s',
-            str(item_id),
-            locale.currency(item_price, grouping=True),
-            item_title,
-            item_user
-        )
+        # logging.info(
+        #     'Encontrado: id=%s, price=%s, title=%s, user=%s',
+        #     str(item_id),
+        #     locale.currency(item_price, grouping=True),
+        #     item_title,
+        #     item_user
+        # )
 
         existing_item = self.db.search_item(item_id, chat_id)
 
@@ -95,12 +95,12 @@ class WallapopMonitor:
         """Procesa un item nuevo encontrado"""
         self.db.add_item(item_id, chat_id, title, price, web_slug, user_id)
         notel(chat_id, price, title, web_slug)
-        logging.info(
-            'New: id=%s, price=%s, title=%s',
-            str(item_id),
-            locale.currency(price, grouping=True),
-            title
-        )
+        # logging.info(
+        #     'New: id=%s, price=%s, title=%s',
+        #     str(item_id),
+        #     locale.currency(price, grouping=True),
+        #     title
+        # )
 
     def _process_price_update(self, existing_item, item_id, new_price, title, web_slug, chat_id):
         """Procesa una actualización de precio"""

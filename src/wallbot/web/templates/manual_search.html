@@ -42,16 +42,25 @@
                     <input type="number" class="form-control" id="max_price" name="max_price" value="{{ request.form.max_price }}">
                 </div>
                 <div class="col-md-6">
-                    <label for="category_ids" class="form-label">Category IDs (comma-separated)</label>
-                    <input type="text" class="form-control" id="category_ids" name="category_ids" value="{{ request.form.category_ids }}">
+                    <label for="category_id" class="form-label">Category ID</label>
+                    <input type="text" class="form-control" id="category_id" name="category_id" value="{{ request.form.category_id }}">
                 </div>
                 <div class="col-md-6">
                     <label for="order_by" class="form-label">Order By</label>
                     <select class="form-select" id="order_by" name="order_by">
-                        <option value="creation_date_des" {% if request.form.order_by == 'creation_date_des' %}selected{% endif %}>Newest</option>
-                        <option value="distance_asc" {% if request.form.order_by == 'distance_asc' %}selected{% endif %}>Closest</option>
-                        <option value="price_asc" {% if request.form.order_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
-                        <option value="price_des" {% if request.form.order_by == 'price_des' %}selected{% endif %}>Price: High to Low</option>
+                        <option value="newest" {% if request.form.order_by == 'newest' %}selected{% endif %}>Newest</option>
+                        <option value="closest" {% if request.form.order_by == 'closest' %}selected{% endif %}>Closest</option>
+                        <option value="price_low_to_high" {% if request.form.order_by == 'price_low_to_high' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_high_to_low" {% if request.form.order_by == 'price_high_to_low' %}selected{% endif %}>Price: High to Low</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="time_filter" class="form-label">Time Filter</label>
+                    <select class="form-select" id="time_filter" name="time_filter">
+                        <option value="" {% if not request.form.time_filter %}selected{% endif %}>Any time</option>
+                        <option value="today" {% if request.form.time_filter == 'today' %}selected{% endif %}>Today</option>
+                        <option value="lastWeek" {% if request.form.time_filter == 'lastWeek' %}selected{% endif %}>Last Week</option>
+                        <option value="lastMonth" {% if request.form.time_filter == 'lastMonth' %}selected{% endif %}>Last Month</option>
                     </select>
                 </div>
                 <div class="col-md-4">
@@ -63,8 +72,8 @@
                     <input type="text" class="form-control" id="longitude" name="longitude" value="{{ request.form.longitude }}">
                 </div>
                 <div class="col-md-4">
-                    <label for="distance" class="form-label">Distance (meters)</label>
-                    <input type="text" class="form-control" id="distance" name="distance" value="{{ request.form.distance }}">
+                    <label for="distance_in_km" class="form-label">Distance (km)</label>
+                    <input type="text" class="form-control" id="distance_in_km" name="distance_in_km" value="{{ request.form.distance_in_km }}">
                 </div>
             </div>
             <button type="submit" class="btn btn-primary mt-3">Search</button>

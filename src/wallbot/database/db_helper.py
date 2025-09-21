@@ -12,7 +12,7 @@ class DBHelper:
     def __init__(self, dbname=None):
         # Use the centralized DATABASE_PATH from settings, but allow overrides.
         calculated_db_name = dbname if dbname is not None else DATABASE_PATH
-        logging.info(f"DB: {calculated_db_name}")
+        # logging.info(f"DB: {calculated_db_name}")
         self.__conn = sqlite3.connect(calculated_db_name, check_same_thread=False)
 
     def setup(self, version=""):
@@ -171,10 +171,10 @@ class DBHelper:
         except Exception as e:
             logging.error(f"Error getting all chat searches: {e}")
 
-            for i in lista:
-                logging.debug(f"Chat: {i.chat_id} - Keywords: {i.kws} - Categories: {i.cat_ids} - "
-                              f"Min price: {i.min_price} - Max price: {i.max_price} - "
-                              f"Distance: {i.dist} - Publish date: {i.publish_date} - Order: {i.orde}")
+            # for i in lista:
+            #     logging.debug(f"Chat: {i.chat_id} - Keywords: {i.kws} - Categories: {i.cat_ids} - "
+            #                   f"Min price: {i.min_price} - Max price: {i.max_price} - "
+            #                   f"Distance: {i.dist} - Publish date: {i.publish_date} - Order: {i.orde}")
 
         return lista
 

@@ -59,7 +59,7 @@ class TelegramHandlers:
         cs.username = message.from_user.username
         cs.name = message.from_user.first_name
         cs.active = 1
-        logging.info('%s', cs)
+        # logging.info('%s', cs)
         self.db.add_search(cs)
 
     def delete_search(self, message):
