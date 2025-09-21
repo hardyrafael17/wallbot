@@ -2,13 +2,15 @@ import logging
 
 import requests
 
-from src.wallbot.config.settings import WALLAPOP_API_URL
+from src.wallbot.config.settings import WALLAPOP_API_URL, WALLAPOP_ITEM_URL, WALLAPOP_USER_URL
 from src.wallbot.database.models import ChatSearch
 
 
 class WallapopClient:
     def __init__(self):
         self.base_url = WALLAPOP_API_URL
+        self.item_url = WALLAPOP_ITEM_URL
+        self.user_url = WALLAPOP_USER_URL
         self.headers = {'x-deviceos': '0'}
 
     def search_items(self, search: ChatSearch):
@@ -71,4 +73,28 @@ class WallapopClient:
             return response.json()
         except requests.RequestException as e:
             logging.error(f"Error en API Wallapop (Web): {e}")
+            return None
+
+    def get_item_details(self, item_id: str):
+        url = self.item_url.format(item_id=item_id)
+        logging.debug(f"API Wallapop (Item) ->: {url}")
+        try:
+            response = requests.get(url=url, headers=self.headers)
+            response.raise_for_status()
+            logging.debug(f"API Wallapop (Item) <-: {response.json()}")
+            return response.json()
+        except requests.RequestException as e:
+            logging.error(f"Error en API Wallapop (Item): {e}")
+            return None
+
+    def get_user_by_id(self, user_id: str):
+        url = self.user_url.format(user_id=user_id)
+        logging.debug(f"API Wallapop (User) ->: {url}")
+        try:
+            response = requests.get(url=url, headers=self.headers)
+            response.raise_for_status()
+            logging.debug(f"API Wallapop (User) <-: {response.json()}")
+            return response.json()
+        except requests.RequestException as e:
+            logging.error(f"Error en API Wallapop (User): {e}")
             return None

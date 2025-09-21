@@ -8,6 +8,8 @@ PROFILE = os.getenv("PROFILE")
 
 TELEGRAM_API_URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 WALLAPOP_API_URL = "https://api.wallapop.com/api/v3/search"
+WALLAPOP_ITEM_URL = "https://api.wallapop.com/api/v3/items/{item_id}"
+WALLAPOP_USER_URL = "https://api.wallapop.com/api/v3/users/{user_id}"
 
 DATABASE_PATH = "db.sqlite" if PROFILE else "/data/db.sqlite"
 

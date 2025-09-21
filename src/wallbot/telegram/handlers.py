@@ -1,4 +1,3 @@
-import logging
 import textwrap
 from re import sub
 

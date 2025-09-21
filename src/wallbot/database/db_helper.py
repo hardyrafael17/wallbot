@@ -1,7 +1,6 @@
 import logging
 import sqlite3
 import time
-from pathlib import Path
 from typing import List
 
 from src.wallbot.config.settings import DATABASE_PATH

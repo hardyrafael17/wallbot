@@ -5,6 +5,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manual Search</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-size: 0.75rem;
+        }
+        h1, .h1 {
+            font-size: 1.5rem;
+        }
+        h2, .h2 {
+            font-size: 1.25rem;
+        }
+        .form-label {
+            font-size: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+        .form-control, .form-select {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.4rem;
+            height: auto;
+        }
+        .btn {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.4rem;
+        }
+        .table {
+            font-size: 0.75rem;
+        }
+        .table th, .table td {
+            padding: 0.4rem;
+        }
+        .container {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        .mt-4 {
+            margin-top: 1.5rem !important;
+        }
+        .mt-3 {
+            margin-top: 1rem !important;
+        }
+        .mt-5 {
+            margin-top: 2.5rem !important;
+        }
+        td img {
+            width: 30px;
+            height: 30px;
+            object-fit: cover;
+        }
+        .clickable-row {
+            cursor: pointer;
+        }
+        .clickable-row:hover {
+            background-color: #f5f5f5;
+        }
+        .modal-dialog {
+            max-width: 90vw;
+            margin: 1.75rem auto;
+        }
+        .modal-body {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .carousel-inner img {
+            max-height: 75vh;
+            object-fit: contain;
+            cursor: pointer;
+        }
+        .carousel-control-prev, .carousel-control-next {
+            background-color: #0d6efd;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.8;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        .carousel-control-prev:hover, .carousel-control-next:hover {
+            opacity: 1;
+        }
+        .carousel-control-prev-icon, .carousel-control-next-icon {
+            filter: brightness(0) invert(1);
+        }
+        #fullscreen-carousel-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1060; /* Higher than modal z-index */
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        #fullscreen-carousel-overlay .carousel {
+            width: 90vw;
+            height: 90vh;
+        }
+        #fullscreen-carousel-overlay .carousel-inner img {
+            max-height: 90vh;
+            object-fit: contain;
+        }
+        #fullscreen-carousel-overlay .btn-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+            background-color: white;
+            border-radius: 50%;
+            padding: 0.5rem;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -28,7 +140,7 @@
     <div class="container mt-4">
         <h1>Manual Wallapop Search</h1>
         <form action="/manual-search" method="post">
-            <div class="row g-3">
+            <div class="row g-1">
                 <div class="col-md-6">
                     <label for="keywords" class="form-label">Keywords</label>
                     <input type="text" class="form-control" id="keywords" name="keywords" value="{{ request.form.keywords }}">
@@ -90,17 +202,21 @@
                         <th>Price</th>
                         <th>Description</th>
                         <th>Location</th>
+                        <th>Created At</th>
+                        <th>Modified At</th>
                         <th>Link</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in results %}
-                    <tr>
+                    <tr class="clickable-row" data-item-id="{{ item.id }}" data-created-at="{{ item.created_at }}">
                         <td><img src="{{ item.images[0].urls.small }}" alt="{{ item.title }}" width="50"></td>
                         <td>{{ item.title }}</td>
                         <td>{{ item.price.amount }} {{ item.price.currency }}</td>
                         <td>{{ item.description[:100] }}...</td>
                         <td>{{ item.location.city }}</td>
+                        <td class="timestamp" data-timestamp="{{ item.created_at }}"></td>
+                        <td class="timestamp" data-timestamp="{{ item.modified_at }}"></td>
                         <td><a href="https://wallapop.com/item/{{ item.web_slug }}" target="_blank">View</a></td>
                     </tr>
                     {% endfor %}
@@ -109,5 +225,167 @@
         </div>
         {% endif %}
     </div>
+
+    <!-- Item Details Modal -->
+    <div class="modal fade" id="itemDetailsModal" tabindex="-1" aria-labelledby="itemDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="itemDetailsModalLabel">Item Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="item-details-content" class="row">
+                        <!-- Content will be loaded here dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Carousel Overlay -->
+    <div id="fullscreen-carousel-overlay">
+        <button type="button" class="btn-close" aria-label="Close"></button>
+        <div id="fullscreen-carousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <!-- Fullscreen carousel items will be injected here -->
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#fullscreen-carousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#fullscreen-carousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.timestamp').forEach(function (element) {
+                const timestamp = parseInt(element.dataset.timestamp, 10);
+                if (!isNaN(timestamp)) {
+                    element.textContent = new Date(timestamp).toLocaleString();
+                }
+            });
+
+            const itemDetailsModal = new bootstrap.Modal(document.getElementById('itemDetailsModal'));
+            const itemDetailsContent = document.getElementById('item-details-content');
+            const fullscreenOverlay = document.getElementById('fullscreen-carousel-overlay');
+            const fullscreenCarouselInner = fullscreenOverlay.querySelector('.carousel-inner');
+            const fullscreenCarousel = new bootstrap.Carousel(document.getElementById('fullscreen-carousel'));
+
+            document.querySelectorAll('.clickable-row').forEach(row => {
+                row.addEventListener('click', function () {
+                    const itemId = this.dataset.itemId;
+                    const createdAt = this.dataset.createdAt;
+                    itemDetailsContent.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+                    itemDetailsModal.show();
+
+                    fetch(`/get-item-details/${itemId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error) {
+                                itemDetailsContent.innerHTML = `<p class="text-danger">${data.error}</p>`;
+                                return;
+                            }
+
+                            let carouselItems = '';
+                            if (data.images && data.images.length > 0) {
+                                data.images.forEach((image, index) => {
+                                    carouselItems += `
+                                        <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                                            <img src="${image.urls.big}" class="d-block w-100" alt="Item image">
+                                        </div>
+                                    `;
+                                });
+                            }
+
+                            const createdDate = new Date(parseInt(createdAt)).toLocaleString();
+                            const modifiedDate = new Date(data.modified_date * 1000).toLocaleString();
+                            const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${data.location.latitude},${data.location.longitude}`;
+
+                            let user_details = ''
+                            if (data.user_details) {
+                                user_details = `
+                                    <p><strong>User:</strong> ${data.user_details.micro_name}</p>
+                                `
+                            }
+
+                            itemDetailsContent.innerHTML = `
+                                <div class="col-md-8">
+                                    <div id="itemCarousel" class="carousel slide" data-bs-ride="carousel">
+                                        <div class="carousel-inner">
+                                            ${carouselItems}
+                                        </div>
+                                        <button class="carousel-control-prev" type="button" data-bs-target="#itemCarousel" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Previous</span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" data-bs-target="#itemCarousel" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Next</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <h3>${data.title.original}</h3>
+                                    <p><strong>Price:</strong> ${data.price.cash.amount} ${data.price.cash.currency}</p>
+                                    <p><strong>Description:</strong> ${data.description.original}</p>
+                                    <p><strong>Published:</strong> ${createdDate}</p>
+                                    <p><strong>Modified:</strong> ${modifiedDate}</p>
+                                    <p><strong>Location:</strong> ${data.location.city}, ${data.location.postal_code} <a href="${gmapsUrl}" target="_blank">(View on Map)</a></p>
+                                    ${user_details}
+                                </div>
+                            `;
+
+                            // Fullscreen carousel logic
+                            const itemCarouselElement = document.getElementById('itemCarousel');
+                            const itemCarousel = new bootstrap.Carousel(itemCarouselElement);
+
+                            itemCarouselElement.addEventListener('click', function(e) {
+                                if (e.target.tagName === 'IMG') {
+                                    const activeCarouselItem = itemCarouselElement.querySelector('.carousel-item.active');
+                                    const allItems = Array.from(itemCarouselElement.querySelectorAll('.carousel-item'));
+                                    const activeIndex = allItems.indexOf(activeCarouselItem);
+
+                                    fullscreenCarouselInner.innerHTML = itemCarouselElement.querySelector('.carousel-inner').innerHTML;
+                                    const fullscreenItems = fullscreenCarouselInner.querySelectorAll('.carousel-item');
+                                    fullscreenItems.forEach((item, index) => {
+                                        if (index === activeIndex) {
+                                            item.classList.add('active');
+                                        } else {
+                                            item.classList.remove('active');
+                                        }
+                                    });
+
+                                    fullscreenOverlay.style.display = 'flex';
+                                    fullscreenCarousel.to(activeIndex);
+                                }
+                            });
+
+                        })
+                        .catch(error => {
+                            itemDetailsContent.innerHTML = '<p class="text-danger">Error loading item details.</p>';
+                            console.error('Error:', error);
+                        });
+                });
+            });
+
+            function closeFullscreen() {
+                fullscreenOverlay.style.display = 'none';
+            }
+
+            fullscreenOverlay.querySelector('.btn-close').addEventListener('click', closeFullscreen);
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && fullscreenOverlay.style.display === 'flex') {
+                    closeFullscreen();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

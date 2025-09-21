@@ -1,5 +1,5 @@
 import logging
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 
 from src.wallbot.wallapop.api_client import WallapopClient
 from src.wallbot.wallapop.api_models import ApiSearchItem, ApiPrice, ApiImage, ApiImageUrls, ApiLocation, ApiShipping, ApiTaxonomy, ApiDiscount
@@ -189,5 +189,18 @@ def create_web_app(db):
                     flash("No results found for your search.", "info")
 
         return render_template('manual_search.html', results=results)
+
+    @app.route('/get-item-details/<item_id>')
+    def get_item_details(item_id):
+        item_details = wallapop_client.get_item_details(item_id)
+        if not item_details:
+            return jsonify({'error': 'Item not found'}), 404
+
+        user_id = item_details.get('user', {}).get('id')
+        if user_id:
+            user_details = wallapop_client.get_user_by_id(user_id)
+            item_details['user_details'] = user_details
+
+        return jsonify(item_details)
 
     return app
