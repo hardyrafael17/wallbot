@@ -171,8 +171,10 @@
                     <input type="number" class="form-control" id="max_price" name="max_price" value="{{ request.form.max_price }}">
                 </div>
                 <div class="col-md-6">
-                    <label for="category_id" class="form-label">Category ID</label>
-                    <input type="text" class="form-control" id="category_id" name="category_id" value="{{ request.form.category_id }}">
+                    <label class="form-label">Category</label>
+                    <div id="category-container"></div>
+                    <input type="hidden" id="category_id" name="category_id" value="{{ request.form.category_id }}">
+                    <input type="hidden" id="subcategory_ids" name="subcategory_ids" value="{{ request.form.subcategory_ids }}">
                 </div>
                 <div class="col-md-6">
                     <label for="order_by" class="form-label">Order By</label>
@@ -692,6 +694,84 @@
         });
     </script>
 </body>
-</html></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Category selection logic
+                const categoryContainer = document.getElementById('category-container');
+                const categoryIdInput = document.getElementById('category_id');
+                const subcategoryIdsInput = document.getElementById('subcategory_ids');
+                let categories = [];
+
+                fetch('/api/categories')
+                    .then(response => response.json())
+                    .then(data => {
+                        categories = data;
+                        createDropdown(categories, null);
+                    });
+
+                function createDropdown(options, rootId) {
+                    const select = document.createElement('select');
+                    select.classList.add('form-select', 'mt-1');
+                    select.innerHTML = '<option value="">Select a category...</option>';
+
+                    options.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.id;
+                        opt.textContent = option.name;
+                        opt.dataset.rootId = rootId || option.id;
+                        select.appendChild(opt);
+                    });
+
+                    select.addEventListener('change', function () {
+                        const selectedOption = this.options[this.selectedIndex];
+                        const selectedId = this.value;
+                        const selectedRootId = selectedOption.dataset.rootId;
+
+                        // Remove subsequent dropdowns
+                        let nextSibling = this.nextElementSibling;
+                        while (nextSibling) {
+                            let toRemove = nextSibling;
+                            nextSibling = nextSibling.nextElementSibling;
+                            toRemove.remove();
+                        }
+
+                        if (selectedId) {
+                            if (selectedId === selectedRootId) {
+                                categoryIdInput.value = selectedId;
+                                subcategoryIdsInput.value = '';
+                            } else {
+                                categoryIdInput.value = selectedRootId;
+                                subcategoryIdsInput.value = selectedId;
+                            }
+
+                            const selectedCategory = findCategoryById(categories, parseInt(selectedId));
+                            if (selectedCategory && selectedCategory.subcategories.length > 0) {
+                                createDropdown(selectedCategory.subcategories, selectedRootId);
+                            }
+                        } else {
+                            categoryIdInput.value = '';
+                            subcategoryIdsInput.value = '';
+                        }
+                    });
+
+                    categoryContainer.appendChild(select);
+                }
+
+                function findCategoryById(options, id) {
+                    for (const option of options) {
+                        if (option.id === id) {
+                            return option;
+                        }
+                        if (option.subcategories.length > 0) {
+                            const found = findCategoryById(option.subcategories, id);
+                            if (found) {
+                                return found;
+                            }
+                        }
+                    }
+                    return null;
+                }
+            });
+        </script>
 </body>
 </html>

@@ -1,8 +1,10 @@
 import logging
+import json
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 
 from src.wallbot.wallapop.api_client import WallapopClient
 from src.wallbot.wallapop.api_models import ApiSearchItem, ApiPrice, ApiImage, ApiImageUrls, ApiLocation, ApiShipping, ApiTaxonomy, ApiDiscount
+from src.wallbot.wallapop.categories import CategoryService
 
 
 def _parse_search_args(args):
@@ -113,6 +115,9 @@ def create_web_app(db):
     # A secret key is required for flashing messages
     app.secret_key = 'supersecretkey'
     wallapop_client = WallapopClient()
+    
+    category_service = CategoryService(wallapop_client)
+    category_service.load_categories()
 
     @app.route('/')
     def index():
@@ -170,6 +175,7 @@ def create_web_app(db):
                 'min_price': request.form.get('min_price'),
                 'max_price': request.form.get('max_price'),
                 'category_id': request.form.get('category_id'),
+                'subcategory_ids': request.form.get('subcategory_ids'),
                 'time_filter': request.form.get('time_filter'),
                 'order_by': request.form.get('order_by'),
             }
@@ -229,5 +235,9 @@ def create_web_app(db):
             item_details['user_details'] = user_details
 
         return jsonify(item_details)
+
+    @app.route('/api/categories')
+    def get_categories():
+        return jsonify(json.loads(category_service.get_categories_as_json()))
 
     return app

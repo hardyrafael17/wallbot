@@ -54,6 +54,8 @@ class WallapopClient:
                 url += f"&keywords={'+'.join(kwargs['keywords'].split(' '))}"
             if 'category_id' in kwargs and kwargs['category_id']:
                 url += f"&category_id={kwargs['category_id']}"
+            if 'subcategory_ids' in kwargs and kwargs['subcategory_ids']:
+                url += f"&subcategory_ids={kwargs['subcategory_ids']}"
             if 'min_price' in kwargs and kwargs['min_price']:
                 url += f"&min_sale_price={kwargs['min_price']}"
             if 'max_price' in kwargs and kwargs['max_price']:
@@ -69,7 +71,7 @@ class WallapopClient:
             if 'order_by' in kwargs and kwargs['order_by']:
                 url += f"&order_by={kwargs['order_by']}"
 
-        logging.debug(f"API Wallapop (Web) ->: {url}")
+        logging.info(f"API Wallapop (Web) ->: {url}")
         try:
             response = requests.get(url=url, headers=self.headers)
             response.raise_for_status()
@@ -103,4 +105,15 @@ class WallapopClient:
             return response.json()
         except requests.RequestException as e:
             logging.error(f"Error en API Wallapop (User): {e}")
+            return None
+
+    def get(self, endpoint, params=None):
+        url = f"{self.base_url}/{endpoint}"
+        logging.debug(f"API Wallapop (GET) ->: {url} with params {params}")
+        try:
+            response = requests.get(url=url, headers=self.headers, params=params)
+            response.raise_for_status()
+            return response
+        except requests.RequestException as e:
+            logging.error(f"Error en API Wallapop (GET): {e}")
             return None
