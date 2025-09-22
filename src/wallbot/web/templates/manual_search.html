@@ -227,9 +227,9 @@
                 <thead>
                     <tr>
                         <th>Image</th>
-                        <th>Title</th>
+                        <th>Title<br><input type="text" id="title-filter" class="form-control form-control-sm" placeholder="Filter..." style="width: 150px; margin-top: 5px;"></th>
                         <th class="sortable" data-sort="price">Price</th>
-                        <th>Description</th>
+                        <th>Description<br><input type="text" id="description-filter" class="form-control form-control-sm" placeholder="Filter..." style="width: 250px; margin-top: 5px;"></th>
                         <th>Location</th>
                         {% if request.form.get('latitude') and request.form.get('longitude') %}
                         <th class="sortable" data-sort="distance">Distance</th>
@@ -485,13 +485,14 @@
                 });
             }
 
-            // Table pagination and sorting
+            // Table pagination, sorting and filtering
             const resultsTable = document.getElementById('results-table');
             if (resultsTable) {
                 const resultsBody = resultsTable.querySelector('tbody');
-                const allRows = Array.from(resultsBody.querySelectorAll('tr'));
+                const masterAllRows = Array.from(resultsBody.querySelectorAll('tr'));
+                let allRows = [...masterAllRows];
                 const rowsPerPage = 40;
-                const pageCount = Math.ceil(allRows.length / rowsPerPage);
+                let pageCount = Math.ceil(allRows.length / rowsPerPage);
                 const paginationContainer = document.getElementById('pagination');
                 let currentPage = 1;
 
@@ -642,6 +643,42 @@
                         updatePaginationUI();
                     });
                 });
+
+                const titleFilter = document.getElementById('title-filter');
+                const descriptionFilter = document.getElementById('description-filter');
+
+                function applyFilters() {
+                    const titleText = titleFilter.value.toLowerCase();
+                    const descriptionText = descriptionFilter.value.toLowerCase();
+
+                    allRows = masterAllRows.filter(row => {
+                        const titleCell = row.cells[1];
+                        const descriptionCell = row.cells[3];
+
+                        const titleMatch = titleCell.textContent.toLowerCase().includes(titleText);
+                        const descriptionMatch = descriptionCell.textContent.toLowerCase().includes(descriptionText);
+
+                        return titleMatch && descriptionMatch;
+                    });
+
+                    const activeSortHeader = resultsTable.querySelector('th.sortable[data-direction]');
+                    if (activeSortHeader && activeSortHeader.dataset.direction) {
+                        const sortKey = activeSortHeader.dataset.sort;
+                        const direction = activeSortHeader.dataset.direction;
+                        sortRows(sortKey, direction);
+                    }
+                    
+                    pageCount = Math.ceil(allRows.length / rowsPerPage);
+                    displayPage(1);
+                    updatePaginationUI();
+                }
+
+                if(titleFilter && descriptionFilter) {
+                    titleFilter.addEventListener('input', applyFilters);
+                    descriptionFilter.addEventListener('input', applyFilters);
+                    titleFilter.addEventListener('click', e => e.stopPropagation());
+                    descriptionFilter.addEventListener('click', e => e.stopPropagation());
+                }
 
                 setupPagination();
                 if (pageCount > 0) {
