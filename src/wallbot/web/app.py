@@ -169,6 +169,7 @@ def create_web_app(db):
     @app.route('/manual-search', methods=['GET', 'POST'])
     def manual_search():
         results = []
+        search_params = {}
         if request.method == 'POST':
             search_params = {
                 'keywords': request.form.get('keywords'),
@@ -189,13 +190,13 @@ def create_web_app(db):
                 search_params['distance_in_km'] = request.form.get('distance_in_km')
 
             # Filter out empty params
-            search_params = {k: v for k, v in search_params.items() if v}
+            search_params_filtered = {k: v for k, v in search_params.items() if v}
             
             fetch_all = request.form.get('fetch_all') == 'on'
             num_pages = int(request.form.get('num_pages', 1))
             max_pages = 20
 
-            response_json = wallapop_client.search_items_from_web(**search_params)
+            response_json = wallapop_client.search_items_from_web(**search_params_filtered)
             
             if response_json and 'data' in response_json:
                 raw_items = response_json.get('data', {}).get('section', {}).get('payload', {}).get('items', [])
@@ -221,7 +222,7 @@ def create_web_app(db):
                 if not results:
                     flash("No results found for your search.", "info")
 
-        return render_template('manual_search.html', results=results)
+        return render_template('manual_search.html', results=results, search_params=search_params)
 
     @app.route('/get-item-details/<item_id>')
     def get_item_details(item_id):
