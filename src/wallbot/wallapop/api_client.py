@@ -45,34 +45,40 @@ class WallapopClient:
 
     def search_items_from_web(self, **kwargs):
         import uuid
-        url = f"{self.base_url}?source=search_box&search_id={uuid.uuid4()}"
-        if 'keywords' in kwargs and kwargs['keywords']:
-            url += f"&keywords={'+'.join(kwargs['keywords'].split(' '))}"
-        if 'category_id' in kwargs and kwargs['category_id']:
-            url += f"&category_id={kwargs['category_id']}"
-        if 'min_price' in kwargs and kwargs['min_price']:
-            url += f"&min_sale_price={kwargs['min_price']}"
-        if 'max_price' in kwargs and kwargs['max_price']:
-            url += f"&max_sale_price={kwargs['max_price']}"
-        if 'distance_in_km' in kwargs and kwargs['distance_in_km']:
-            url += f"&distance_in_km={kwargs['distance_in_km']}"
-        if 'latitude' in kwargs and kwargs['latitude']:
-            url += f"&latitude={kwargs['latitude']}"
-        if 'longitude' in kwargs and kwargs['longitude']:
-            url += f"&longitude={kwargs['longitude']}"
-        if 'time_filter' in kwargs and kwargs['time_filter']:
-            url += f"&time_filter={kwargs['time_filter']}"
-        if 'order_by' in kwargs and kwargs['order_by']:
-            url += f"&order_by={kwargs['order_by']}"
+        
+        if 'next_page' in kwargs and kwargs['next_page']:
+            url = f"{self.base_url}?next_page={kwargs['next_page']}"
+        else:
+            url = f"{self.base_url}?source=search_box&search_id={uuid.uuid4()}"
+            if 'keywords' in kwargs and kwargs['keywords']:
+                url += f"&keywords={'+'.join(kwargs['keywords'].split(' '))}"
+            if 'category_id' in kwargs and kwargs['category_id']:
+                url += f"&category_id={kwargs['category_id']}"
+            if 'min_price' in kwargs and kwargs['min_price']:
+                url += f"&min_sale_price={kwargs['min_price']}"
+            if 'max_price' in kwargs and kwargs['max_price']:
+                url += f"&max_sale_price={kwargs['max_price']}"
+            if 'distance_in_km' in kwargs and kwargs['distance_in_km']:
+                url += f"&distance_in_km={kwargs['distance_in_km']}"
+            if 'latitude' in kwargs and kwargs['latitude']:
+                url += f"&latitude={kwargs['latitude']}"
+            if 'longitude' in kwargs and kwargs['longitude']:
+                url += f"&longitude={kwargs['longitude']}"
+            if 'time_filter' in kwargs and kwargs['time_filter']:
+                url += f"&time_filter={kwargs['time_filter']}"
+            if 'order_by' in kwargs and kwargs['order_by']:
+                url += f"&order_by={kwargs['order_by']}"
 
         logging.debug(f"API Wallapop (Web) ->: {url}")
         try:
             response = requests.get(url=url, headers=self.headers)
             response.raise_for_status()
-            logging.debug(f"API Wallapop (Web) <-: {response.json()}")
             return response.json()
         except requests.RequestException as e:
             logging.error(f"Error en API Wallapop (Web): {e}")
+            return None
+        except requests.exceptions.JSONDecodeError as e:
+            logging.error(f"Error decoding JSON from Wallapop (Web): {e}")
             return None
 
     def get_item_details(self, item_id: str):

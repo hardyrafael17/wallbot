@@ -107,7 +107,7 @@
             max-height: 90vh;
             object-fit: contain;
         }
-        #fullscreen-carousel-overlay .btn-close {
+        .btn-close {
             position: absolute;
             top: 20px;
             right: 20px;
@@ -115,6 +115,23 @@
             background-color: white;
             border-radius: 50%;
             padding: 0.5rem;
+        }
+        .sortable {
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .sortable::after {
+            content: ' \2195'; /* up-down arrow */
+            opacity: 0.3;
+            font-size: 0.9em;
+        }
+        .sortable[data-direction="asc"]::after {
+            content: ' \25B2'; /* up arrow */
+            opacity: 1;
+        }
+        .sortable[data-direction="desc"]::after {
+            content: ' \25BC'; /* down arrow */
+            opacity: 1;
         }
     </style>
 </head>
@@ -166,7 +183,7 @@
                         <option value="price_high_to_low" {% if request.form.order_by == 'price_high_to_low' %}selected{% endif %}>Price: High to Low</option>
                     </select>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="time_filter" class="form-label">Time Filter</label>
                     <select class="form-select" id="time_filter" name="time_filter">
                         <option value="" {% if not request.form.time_filter %}selected{% endif %}>Any time</option>
@@ -175,17 +192,29 @@
                         <option value="lastMonth" {% if request.form.time_filter == 'lastMonth' %}selected{% endif %}>Last Month</option>
                     </select>
                 </div>
+                <div class="col-md-2">
+                    <label for="num_pages" class="form-label">Pages to fetch</label>
+                    <input type="number" class="form-control" id="num_pages" name="num_pages" value="{{ request.form.get('num_pages', 1) }}" min="1">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="fetch_all" name="fetch_all" {% if request.form.get('fetch_all') %}checked{% endif %}>
+                        <label class="form-check-label" for="fetch_all">
+                            Fetch all
+                        </label>
+                    </div>
+                </div>
                 <div class="col-md-4">
                     <label for="latitude" class="form-label">Latitude</label>
-                    <input type="text" class="form-control" id="latitude" name="latitude" value="{{ request.form.latitude }}">
+                    <input type="text" class="form-control" id="latitude" name="latitude" value="{{ request.form.get('latitude', '40.41956') }}">
                 </div>
                 <div class="col-md-4">
                     <label for="longitude" class="form-label">Longitude</label>
-                    <input type="text" class="form-control" id="longitude" name="longitude" value="{{ request.form.longitude }}">
+                    <input type="text" class="form-control" id="longitude" name="longitude" value="{{ request.form.get('longitude', '-3.69196') }}">
                 </div>
                 <div class="col-md-4">
                     <label for="distance_in_km" class="form-label">Distance (km)</label>
-                    <input type="text" class="form-control" id="distance_in_km" name="distance_in_km" value="{{ request.form.distance_in_km }}">
+                    <input type="text" class="form-control" id="distance_in_km" name="distance_in_km" value="{{ request.form.get('distance_in_km', '100') }}">
                 </div>
             </div>
             <button type="submit" class="btn btn-primary mt-3">Search</button>
@@ -194,16 +223,19 @@
         {% if results %}
         <h2 class="mt-5">Search Results</h2>
         <div class="table-responsive">
-            <table class="table table-striped table-hover">
+            <table class="table table-striped table-hover" id="results-table">
                 <thead>
                     <tr>
                         <th>Image</th>
                         <th>Title</th>
-                        <th>Price</th>
+                        <th class="sortable" data-sort="price">Price</th>
                         <th>Description</th>
                         <th>Location</th>
-                        <th>Created At</th>
-                        <th>Modified At</th>
+                        {% if request.form.get('latitude') and request.form.get('longitude') %}
+                        <th class="sortable" data-sort="distance">Distance</th>
+                        {% endif %}
+                        <th class="sortable" data-sort="created">Created At</th>
+                        <th class="sortable" data-sort="modified">Modified At</th>
                         <th>Link</th>
                     </tr>
                 </thead>
@@ -212,9 +244,12 @@
                     <tr class="clickable-row" data-item-id="{{ item.id }}" data-created-at="{{ item.created_at }}">
                         <td><img src="{{ item.images[0].urls.small }}" alt="{{ item.title }}" width="50"></td>
                         <td>{{ item.title }}</td>
-                        <td>{{ item.price.amount }} {{ item.price.currency }}</td>
+                        <td data-price="{{ item.price.amount }}">{{ item.price.amount }} {{ item.price.currency }}</td>
                         <td>{{ item.description[:100] }}...</td>
                         <td>{{ item.location.city }}</td>
+                        {% if request.form.get('latitude') and request.form.get('longitude') %}
+                        <td class="distance" data-item-lat="{{ item.location.latitude }}" data-item-lon="{{ item.location.longitude }}"></td>
+                        {% endif %}
                         <td class="timestamp" data-timestamp="{{ item.created_at }}"></td>
                         <td class="timestamp" data-timestamp="{{ item.modified_at }}"></td>
                         <td><a href="https://wallapop.com/item/{{ item.web_slug }}" target="_blank">View</a></td>
@@ -223,6 +258,9 @@
                 </tbody>
             </table>
         </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center" id="pagination"></ul>
+        </nav>
         {% endif %}
     </div>
 
@@ -264,6 +302,58 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Form logic for fetch all
+            const fetchAllCheckbox = document.getElementById('fetch_all');
+            const numPagesInput = document.getElementById('num_pages');
+
+            function toggleNumPages() {
+                if (numPagesInput) {
+                    numPagesInput.disabled = fetchAllCheckbox.checked;
+                }
+            }
+
+            if (fetchAllCheckbox) {
+                fetchAllCheckbox.addEventListener('change', toggleNumPages);
+                toggleNumPages();
+            }
+
+            // Distance calculation
+            const searchLatInput = document.getElementById('latitude');
+            const searchLonInput = document.getElementById('longitude');
+
+            if (searchLatInput && searchLonInput && searchLatInput.value && searchLonInput.value) {
+                const searchLat = parseFloat(searchLatInput.value);
+                const searchLon = parseFloat(searchLonInput.value);
+
+                function haversineDistance(lat1, lon1, lat2, lon2) {
+                    const R = 6371; // Radius of the Earth in km
+                    const dLat = (lat2 - lat1) * Math.PI / 180;
+                    const dLon = (lon2 - lon1) * Math.PI / 180;
+                    const a =
+                        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                    const distance = R * c;
+                    return distance;
+                }
+
+                document.querySelectorAll('.distance').forEach(function (element) {
+                    const itemLat = parseFloat(element.dataset.itemLat);
+                    const itemLon = parseFloat(element.dataset.itemLon);
+
+                    if (!isNaN(itemLat) && !isNaN(itemLon)) {
+                        const distance = haversineDistance(searchLat, searchLon, itemLat, itemLon);
+                        element.dataset.distance = distance;
+                        const distanceInKm = distance.toFixed(1);
+                        const gmapsDirectionsUrl = `https://www.google.com/maps/dir/${searchLat},${searchLon}/${itemLat},${itemLon}`;
+
+                        element.innerHTML = `<a href="${gmapsDirectionsUrl}" target="_blank">${distanceInKm} km</a>`;
+                    }
+                });
+            }
+
+            // Timestamp formatting
             document.querySelectorAll('.timestamp').forEach(function (element) {
                 const timestamp = parseInt(element.dataset.timestamp, 10);
                 if (!isNaN(timestamp)) {
@@ -277,115 +367,294 @@
             const fullscreenCarouselInner = fullscreenOverlay.querySelector('.carousel-inner');
             const fullscreenCarousel = new bootstrap.Carousel(document.getElementById('fullscreen-carousel'));
 
-            document.querySelectorAll('.clickable-row').forEach(row => {
-                row.addEventListener('click', function () {
-                    const itemId = this.dataset.itemId;
-                    const createdAt = this.dataset.createdAt;
-                    itemDetailsContent.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
-                    itemDetailsModal.show();
+            function attachClickListenersToRows() {
+                document.querySelectorAll('.clickable-row').forEach(row => {
+                    // Prevent attaching multiple listeners
+                    if (row.dataset.listenerAttached) return;
+                    row.dataset.listenerAttached = true;
 
-                    fetch(`/get-item-details/${itemId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.error) {
-                                itemDetailsContent.innerHTML = `<p class="text-danger">${data.error}</p>`;
-                                return;
-                            }
+                    row.addEventListener('click', function () {
+                        const itemId = this.dataset.itemId;
+                        const createdAt = this.dataset.createdAt;
+                        itemDetailsContent.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+                        itemDetailsModal.show();
 
-                            let carouselItems = '';
-                            if (data.images && data.images.length > 0) {
-                                data.images.forEach((image, index) => {
-                                    carouselItems += `
-                                        <div class="carousel-item ${index === 0 ? 'active' : ''}">
-                                            <img src="${image.urls.big}" class="d-block w-100" alt="Item image">
+                        fetch(`/get-item-details/${itemId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.error) {
+                                    itemDetailsContent.innerHTML = `<p class="text-danger">${data.error}</p>`;
+                                    return;
+                                }
+
+                                let carouselItems = '';
+                                if (data.images && data.images.length > 0) {
+                                    data.images.forEach((image, index) => {
+                                        carouselItems += `
+                                            <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                                                <img src="${image.urls.big}" class="d-block w-100" alt="Item image">
+                                            </div>
+                                        `;
+                                    });
+                                }
+
+                                const createdDate = new Date(parseInt(createdAt)).toLocaleString();
+                                const modifiedDate = new Date(data.modified_date * 1000).toLocaleString();
+                                const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${data.location.latitude},${data.location.longitude}`;
+
+                                let user_details = ''
+                                if (data.user_details) {
+                                    user_details = `
+                                        <p><strong>User:</strong> ${data.user_details.micro_name}</p>
+                                    `
+                                }
+
+                                itemDetailsContent.innerHTML = `
+                                    <div class="col-md-8">
+                                        <div id="itemCarousel" class="carousel slide" data-bs-ride="carousel">
+                                            <div class="carousel-inner">
+                                                ${carouselItems}
+                                            </div>
+                                            <button class="carousel-control-prev" type="button" data-bs-target="#itemCarousel" data-bs-slide="prev">
+                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Previous</span>
+                                            </button>
+                                            <button class="carousel-control-next" type="button" data-bs-target="#itemCarousel" data-bs-slide="next">
+                                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Next</span>
+                                            </button>
                                         </div>
-                                    `;
-                                });
-                            }
-
-                            const createdDate = new Date(parseInt(createdAt)).toLocaleString();
-                            const modifiedDate = new Date(data.modified_date * 1000).toLocaleString();
-                            const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${data.location.latitude},${data.location.longitude}`;
-
-                            let user_details = ''
-                            if (data.user_details) {
-                                user_details = `
-                                    <p><strong>User:</strong> ${data.user_details.micro_name}</p>
-                                `
-                            }
-
-                            itemDetailsContent.innerHTML = `
-                                <div class="col-md-8">
-                                    <div id="itemCarousel" class="carousel slide" data-bs-ride="carousel">
-                                        <div class="carousel-inner">
-                                            ${carouselItems}
-                                        </div>
-                                        <button class="carousel-control-prev" type="button" data-bs-target="#itemCarousel" data-bs-slide="prev">
-                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Previous</span>
-                                        </button>
-                                        <button class="carousel-control-next" type="button" data-bs-target="#itemCarousel" data-bs-slide="next">
-                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Next</span>
-                                        </button>
                                     </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <h3>${data.title.original}</h3>
-                                    <p><strong>Price:</strong> ${data.price.cash.amount} ${data.price.cash.currency}</p>
-                                    <p><strong>Description:</strong> ${data.description.original}</p>
-                                    <p><strong>Published:</strong> ${createdDate}</p>
-                                    <p><strong>Modified:</strong> ${modifiedDate}</p>
-                                    <p><strong>Location:</strong> ${data.location.city}, ${data.location.postal_code} <a href="${gmapsUrl}" target="_blank">(View on Map)</a></p>
-                                    ${user_details}
-                                </div>
-                            `;
+                                    <div class="col-md-4">
+                                        <h3>${data.title.original}</h3>
+                                        <p><strong>Price:</strong> ${data.price.cash.amount} ${data.price.cash.currency}</p>
+                                        <p><strong>Description:</strong> ${data.description.original}</p>
+                                        <p><strong>Published:</strong> ${createdDate}</p>
+                                        <p><strong>Modified:</strong> ${modifiedDate}</p>
+                                        <p><strong>Location:</strong> ${data.location.city}, ${data.location.postal_code} <a href="${gmapsUrl}" target="_blank">(View on Map)</a></p>
+                                        ${user_details}
+                                    </div>
+                                `;
 
-                            // Fullscreen carousel logic
-                            const itemCarouselElement = document.getElementById('itemCarousel');
-                            const itemCarousel = new bootstrap.Carousel(itemCarouselElement);
+                                // Fullscreen carousel logic
+                                const itemCarouselElement = document.getElementById('itemCarousel');
+                                if (itemCarouselElement) {
+                                    const itemCarousel = new bootstrap.Carousel(itemCarouselElement);
 
-                            itemCarouselElement.addEventListener('click', function(e) {
-                                if (e.target.tagName === 'IMG') {
-                                    const activeCarouselItem = itemCarouselElement.querySelector('.carousel-item.active');
-                                    const allItems = Array.from(itemCarouselElement.querySelectorAll('.carousel-item'));
-                                    const activeIndex = allItems.indexOf(activeCarouselItem);
+                                    itemCarouselElement.addEventListener('click', function(e) {
+                                        if (e.target.tagName === 'IMG') {
+                                            const activeCarouselItem = itemCarouselElement.querySelector('.carousel-item.active');
+                                            const allItems = Array.from(itemCarouselElement.querySelectorAll('.carousel-item'));
+                                            const activeIndex = allItems.indexOf(activeCarouselItem);
 
-                                    fullscreenCarouselInner.innerHTML = itemCarouselElement.querySelector('.carousel-inner').innerHTML;
-                                    const fullscreenItems = fullscreenCarouselInner.querySelectorAll('.carousel-item');
-                                    fullscreenItems.forEach((item, index) => {
-                                        if (index === activeIndex) {
-                                            item.classList.add('active');
-                                        } else {
-                                            item.classList.remove('active');
+                                            fullscreenCarouselInner.innerHTML = itemCarouselElement.querySelector('.carousel-inner').innerHTML;
+                                            const fullscreenItems = fullscreenCarouselInner.querySelectorAll('.carousel-item');
+                                            fullscreenItems.forEach((item, index) => {
+                                                if (index === activeIndex) {
+                                                    item.classList.add('active');
+                                                } else {
+                                                    item.classList.remove('active');
+                                                }
+                                            });
+
+                                            fullscreenOverlay.style.display = 'flex';
+                                            fullscreenCarousel.to(activeIndex);
                                         }
                                     });
-
-                                    fullscreenOverlay.style.display = 'flex';
-                                    fullscreenCarousel.to(activeIndex);
                                 }
+                            })
+                            .catch(error => {
+                                itemDetailsContent.innerHTML = '<p class="text-danger">Error loading item details.</p>';
+                                console.error('Error:', error);
                             });
-
-                        })
-                        .catch(error => {
-                            itemDetailsContent.innerHTML = '<p class="text-danger">Error loading item details.</p>';
-                            console.error('Error:', error);
-                        });
+                    });
                 });
-            });
+            }
 
             function closeFullscreen() {
                 fullscreenOverlay.style.display = 'none';
             }
 
-            fullscreenOverlay.querySelector('.btn-close').addEventListener('click', closeFullscreen);
+            if(fullscreenOverlay) {
+                fullscreenOverlay.querySelector('.btn-close').addEventListener('click', closeFullscreen);
 
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' && fullscreenOverlay.style.display === 'flex') {
-                    closeFullscreen();
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' && fullscreenOverlay.style.display === 'flex') {
+                        closeFullscreen();
+                    }
+                });
+            }
+
+            // Table pagination and sorting
+            const resultsTable = document.getElementById('results-table');
+            if (resultsTable) {
+                const resultsBody = resultsTable.querySelector('tbody');
+                const allRows = Array.from(resultsBody.querySelectorAll('tr'));
+                const rowsPerPage = 40;
+                const pageCount = Math.ceil(allRows.length / rowsPerPage);
+                const paginationContainer = document.getElementById('pagination');
+                let currentPage = 1;
+
+                function displayPage(page) {
+                    currentPage = page;
+                    resultsBody.innerHTML = '';
+                    const start = (page - 1) * rowsPerPage;
+                    const end = start + rowsPerPage;
+                    const pageRows = allRows.slice(start, end);
+                    pageRows.forEach(row => resultsBody.appendChild(row));
+                    attachClickListenersToRows(); // Re-attach listeners to the new rows
                 }
-            });
+
+                function setupPagination() {
+                    if (!paginationContainer || pageCount <= 1) {
+                        if(paginationContainer) paginationContainer.style.display = 'none';
+                        return;
+                    }
+                    
+                    paginationContainer.innerHTML = '';
+                    paginationContainer.style.display = 'flex';
+
+                    const createPageItem = (content, page, disabled = false, active = false) => {
+                        const li = document.createElement('li');
+                        li.classList.add('page-item');
+                        if (disabled) li.classList.add('disabled');
+                        if (active) li.classList.add('active');
+                        
+                        const a = document.createElement('a');
+                        a.classList.add('page-link');
+                        a.href = '#';
+                        a.innerHTML = content;
+                        if (page) {
+                            a.dataset.page = page;
+                            a.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                displayPage(page);
+                                updatePaginationUI();
+                            });
+                        }
+                        li.appendChild(a);
+                        return li;
+                    };
+
+                    paginationContainer.appendChild(createPageItem('&laquo;', currentPage > 1 ? currentPage - 1 : null, currentPage === 1));
+
+                    let startPage = Math.max(1, currentPage - 2);
+                    let endPage = Math.min(pageCount, currentPage + 2);
+
+                    if (currentPage < 3) {
+                        endPage = Math.min(5, pageCount);
+                    }
+                    if (currentPage > pageCount - 2) {
+                        startPage = Math.max(1, pageCount - 4);
+                    }
+
+                    if (startPage > 1) {
+                        paginationContainer.appendChild(createPageItem(1, 1));
+                        if (startPage > 2) {
+                            paginationContainer.appendChild(createPageItem('...', null, true));
+                        }
+                    }
+
+                    for (let i = startPage; i <= endPage; i++) {
+                        paginationContainer.appendChild(createPageItem(i, i, false, i === currentPage));
+                    }
+
+                    if (endPage < pageCount) {
+                        if (endPage < pageCount - 1) {
+                            paginationContainer.appendChild(createPageItem('...', null, true));
+                        }
+                        paginationContainer.appendChild(createPageItem(pageCount, pageCount));
+                    }
+
+                    paginationContainer.appendChild(createPageItem('&raquo;', currentPage < pageCount ? currentPage + 1 : null, currentPage === pageCount));
+                }
+
+                function updatePaginationUI() {
+                    setupPagination();
+                }
+
+                function sortRows(key, direction) {
+                    allRows.sort((rowA, rowB) => {
+                        let valA, valB;
+
+                        const priceCellA = rowA.querySelector('td[data-price]');
+                        const priceCellB = rowB.querySelector('td[data-price]');
+
+                        const distanceCellA = rowA.querySelector('.distance');
+                        const distanceCellB = rowB.querySelector('.distance');
+
+                        const timestampCellsA = rowA.querySelectorAll('.timestamp');
+                        const timestampCellsB = rowB.querySelectorAll('.timestamp');
+
+                        switch (key) {
+                            case 'price':
+                                valA = priceCellA ? parseFloat(priceCellA.dataset.price) : 0;
+                                valB = priceCellB ? parseFloat(priceCellB.dataset.price) : 0;
+                                break;
+                            case 'distance':
+                                valA = distanceCellA && distanceCellA.dataset.distance ? parseFloat(distanceCellA.dataset.distance) : -1;
+                                valB = distanceCellB && distanceCellB.dataset.distance ? parseFloat(distanceCellB.dataset.distance) : -1;
+                                if (valA === -1) valA = Infinity;
+                                if (valB === -1) valB = Infinity;
+                                break;
+                            case 'created':
+                                valA = timestampCellsA.length > 0 ? parseInt(timestampCellsA[0].dataset.timestamp, 10) : 0;
+                                valB = timestampCellsB.length > 0 ? parseInt(timestampCellsB[0].dataset.timestamp, 10) : 0;
+                                break;
+                            case 'modified':
+                                valA = timestampCellsA.length > 1 ? parseInt(timestampCellsA[1].dataset.timestamp, 10) : 0;
+                                valB = timestampCellsB.length > 1 ? parseInt(timestampCellsB[1].dataset.timestamp, 10) : 0;
+                                break;
+                            default:
+                                return 0;
+                        }
+
+                        if (valA < valB) {
+                            return direction === 'asc' ? -1 : 1;
+                        }
+                        if (valA > valB) {
+                            return direction === 'asc' ? 1 : -1;
+                        }
+                        return 0;
+                    });
+                }
+
+                const headers = resultsTable.querySelectorAll('th.sortable');
+                headers.forEach(header => {
+                    header.addEventListener('click', () => {
+                        const sortKey = header.dataset.sort;
+                        const wasActive = header.dataset.direction !== '';
+                        const isAsc = header.dataset.direction === 'asc';
+                        let direction = 'asc';
+
+                        if (wasActive) {
+                            direction = isAsc ? 'desc' : 'asc';
+                        }
+                        
+                        headers.forEach(h => {
+                            h.dataset.direction = '';
+                        });
+
+                        header.dataset.direction = direction;
+
+                        sortRows(sortKey, direction);
+                        displayPage(1);
+                        updatePaginationUI();
+                    });
+                });
+
+                setupPagination();
+                if (pageCount > 0) {
+                    displayPage(1);
+                } else {
+                    attachClickListenersToRows();
+                }
+            } else {
+                attachClickListenersToRows();
+            }
         });
     </script>
+</body>
+</html></script>
 </body>
 </html>

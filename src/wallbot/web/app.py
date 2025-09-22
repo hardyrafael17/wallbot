@@ -171,20 +171,47 @@ def create_web_app(db):
                 'max_price': request.form.get('max_price'),
                 'category_id': request.form.get('category_id'),
                 'time_filter': request.form.get('time_filter'),
-                'latitude': request.form.get('latitude'),
-                'longitude': request.form.get('longitude'),
-                'distance_in_km': request.form.get('distance_in_km'),
                 'order_by': request.form.get('order_by'),
             }
+
+            latitude = request.form.get('latitude')
+            longitude = request.form.get('longitude')
+
+            if latitude and longitude:
+                search_params['latitude'] = latitude
+                search_params['longitude'] = longitude
+                search_params['distance_in_km'] = request.form.get('distance_in_km')
+
             # Filter out empty params
             search_params = {k: v for k, v in search_params.items() if v}
             
+            fetch_all = request.form.get('fetch_all') == 'on'
+            num_pages = int(request.form.get('num_pages', 1))
+            max_pages = 20
+
             response_json = wallapop_client.search_items_from_web(**search_params)
             
             if response_json and 'data' in response_json:
-                raw_items = response_json['data'].get('section', {}).get('payload', {}).get('items', [])
-                results = [_parse_api_item(item) for item in raw_items]
-                results = [item for item in results if item] # Filter out parsing errors
+                raw_items = response_json.get('data', {}).get('section', {}).get('payload', {}).get('items', [])
+                results.extend([item for item in [_parse_api_item(item) for item in raw_items] if item])
+                
+                next_page = response_json.get('meta', {}).get('next_page')
+                
+                page_count = 1
+                items_on_prev_page = len(raw_items)
+                while next_page and page_count < max_pages and (fetch_all or page_count < num_pages):
+                    page_count += 1
+                    logging.info(f"Fetching page {page_count}, items on previous page: {items_on_prev_page}")
+                    response_json = wallapop_client.search_items_from_web(next_page=next_page)
+                    if response_json and 'data' in response_json:
+                        raw_items = response_json.get('data', {}).get('section', {}).get('payload', {}).get('items', [])
+                        items_on_prev_page = len(raw_items)
+                        results.extend([item for item in [_parse_api_item(item) for item in raw_items] if item])
+                        next_page = response_json.get('meta', {}).get('next_page')
+                    else:
+                        next_page = None
+                        items_on_prev_page = 0
+
                 if not results:
                     flash("No results found for your search.", "info")
 
