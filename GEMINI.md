@@ -53,8 +53,7 @@ wallapop_bot/
 ├── database/
 │   ├── __init__.py
 │   ├── db_helper.py
-│   ├── models.py
-│   └── migrations.py
+│   └── models.py
 ├── telegram/
 │   ├── __init__.py
 │   ├── bot.py
@@ -64,11 +63,17 @@ wallapop_bot/
 │   ├── __init__.py
 │   ├── api_client.py
 │   ├── api_models.py
+│   ├── categories.py
 │   └── monitor.py
 ├── utils/
 │   ├── __init__.py
 │   ├── logger.py
-│   ├── currency.py
-│   └── exceptions.py
+│   └── version.py
+├── web/
+│   ├── app.py
+│   └── templates/
+│       ├── index.html
+│       ├── manual_search.html
+│       └── searches.html
 └── requirements.txt
 ```
