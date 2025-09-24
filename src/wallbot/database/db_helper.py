@@ -23,8 +23,9 @@ class DBHelper:
                       "url text, " \
                       "user text, " \
                       "publishDate integer, " \
-                      "observaciones text, " \
+                      "description text, " \
                       "item text, " \
+                      "notes text, " \
                       " primary key (itemId,chatId))"
         self.__conn.execute(tblstmtitem)
 
@@ -48,15 +49,15 @@ class DBHelper:
         self.__conn.execute(tblstmtsavedsearches)
 
         tblstmtsaveditems = "create table if not exists saved_items " \
-                              "(id text primary key, " \
-                              "user_id text, " \
+                              "(item_id text primary key, " \
+                              "chat_id text, " \
                               "title text, " \
                               "price text, " \
-                              "description text, " \
                               "url text, " \
-                              "images text, " \
-                              "item_json text)"
-        self.__conn.execute(tblstmtsaveditems)
+                              "publish_date integer, " \
+                              "description text, " \
+                              "item text, " \
+                              "notes text)"
         self.__conn.execute(tblstmtsaveditems)
 
         if version == '1.0.6':
@@ -98,14 +99,41 @@ class DBHelper:
         except Exception as e:
             logging.error(f"Error deleting saved search with id {search_id}: {e}")
 
-    def add_saved_item(self, item_data):
-        stmt = "insert into saved_items (id, user_id, title, price, description, url, images, item_json) " \
-               "values (:id, :user_id, :title, :price, :description, :url, :images, :item_json)"
+    def update_saved_item_notes(self, item_id, notes):
+        stmt = "update saved_items set notes = ? where item_id = ?"
         try:
-            self.__conn.execute(stmt, item_data)
+            self.__conn.execute(stmt, (notes, item_id))
+            self.__conn.commit()
+        except Exception as e:
+            logging.error(f"Error updating notes for saved item {item_id}: {e}")
+
+    def delete_saved_item(self, item_id):
+        stmt = "delete from saved_items where item_id = ?"
+        try:
+            self.__conn.execute(stmt, (item_id,))
+            self.__conn.commit()
+        except Exception as e:
+            logging.error(f"Error deleting saved item with id {item_id}: {e}")
+
+    def get_all_saved_items(self) -> List[Item]:
+        stmt = "select item_id, chat_id, title, price, url, publish_date, description, item, notes from saved_items"
+        items = []
+        try:
+            for row in self.__conn.execute(stmt):
+                items.append(Item(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
+        except Exception as e:
+            logging.error(f"Error getting all saved items: {e}")
+        return items
+
+    def add_saved_item(self, item: Item):
+        stmt = "insert into saved_items (item_id, chat_id, title, price, description, url, publish_date, item, notes) " \
+               "values (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        args = (item.item_id, item.chat_id, item.title, item.price, item.description, item.url, item.publish_date, item.item, item.notes)
+        try:
+            self.__conn.execute(stmt, args)
             self.__conn.commit()
         except sqlite3.IntegrityError:
-            logging.warning(f"Item already exists in saved_items: {item_data.get('id')}")
+            logging.warning(f"Item already exists in saved_items: {item.item_id}")
             raise
 
     def add_search(self, chat_search):
@@ -155,23 +183,24 @@ class DBHelper:
         except sqlite3.IntegrityError as e:
             logging.error(f"Error adding chat search: {e}")
 
-    def add_item(self, item_id, chat_id, title, price, url, user, publish_date=None, observaciones=None):
-        stmt = "insert into item (itemId, chatId, title, price, url, user, publishDate, observaciones) " \
-               "values (?, ?, ?, ?, ?, ?, ?, ?)"
-        args = (item_id, chat_id, title, price, url, user, publish_date, observaciones)
+    def add_item(self, item_id, chat_id, title, price, url, user, publish_date=None, description=None, notes=None):
+        stmt = "insert into item (itemId, chatId, title, price, url, user, publishDate, description, notes) " \
+               "values (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        args = (item_id, chat_id, title, price, url, user, publish_date, description, notes)
         try:
             self.__conn.execute(stmt, args)
             self.__conn.commit()
         except Exception as e:
             logging.error(f"Error adding item: {e}")
 
-    def update_item(self, item_id, price, obs):
+    def update_item(self, item_id, price, description, notes):
         stmt = "update item " \
                "set price = ?, " \
-               "observaciones = ? " \
+               "description = ?, " \
+               "notes = ? " \
                "where itemId = ?"
         try:
-            self.__conn.execute(stmt, (price, obs, item_id))
+            self.__conn.execute(stmt, (price, description, notes, item_id))
             self.__conn.commit()
         except Exception as e:
             logging.error(f"Error updating item: {e}")
@@ -188,12 +217,12 @@ class DBHelper:
             logging.error(f"Error deleting items older than {hours_live} hours: {e}")
 
     def search_item(self, item_id, chat_id):
-        stmt = "select itemId, chatId, title, price, url, publishDate, observaciones, user " \
+        stmt = "select itemId, chatId, title, price, url, publishDate, description, user, notes " \
                "from item where itemId = (?) and chatId = (?)"
         args = (item_id, chat_id)
         try:
             for row in self.__conn.execute(stmt, args):
-                i = Item(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7])
+                i = Item(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8])
                 return i
         except Exception as e:
             logging.error(f"Error searching item: {e}")

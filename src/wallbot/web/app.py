@@ -213,23 +213,57 @@ def create_web_app(db):
             return jsonify({'success': False, 'error': 'Invalid item data.'}), 400
         
         try:
-            # Prepare data for db
-            db_data = {
-                'id': item_data.get('id'),
-                'user_id': item_data.get('user_id'),
-                'title': item_data.get('title'),
-                'price': item_data.get('price', {}).get('amount'),
-                'description': item_data.get('description'),
-                'url': f"https://wallapop.com/item/{item_data.get('web_slug')}",
-                'images': json.dumps(item_data.get('images', [])),
-                'item_json': json.dumps(item_data)
-            }
-            db.add_saved_item(db_data)
+            # Create an Item object from the received data
+            item = Item(
+                item_id=item_data.get('id'),
+                chat_id=None, # chat_id is not relevant for saved items from web UI
+                title=item_data.get('title'),
+                price=item_data.get('price', {}).get('amount'),
+                url=f"https://wallapop.com/item/{item_data.get('web_slug')}",
+                publish_date=None, # Not directly available in this context
+                description=item_data.get('description'),
+                item=json.dumps(item_data), # Store the full item JSON
+                notes=None # Initialize notes as None
+            )
+            db.add_saved_item(item)
             return jsonify({'success': True})
         except sqlite3.IntegrityError:
             return jsonify({'success': False, 'error': 'Item already saved.'}), 409
         except Exception as e:
             logging.error(f"Error adding saved item: {e}")
+            return jsonify({'success': False, 'error': str(e)}), 500
+
+    @app.route('/saved_items_list')
+    def saved_items_list():
+        """Displays all saved items."""
+        try:
+            all_saved_items = db.get_all_saved_items()
+            return render_template('saved_items_list.html', saved_items=all_saved_items)
+        except Exception as e:
+            logging.error(f"Error fetching saved items for web UI: {e}")
+            flash("Error loading saved items from the database.", "error")
+            return render_template('saved_items_list.html', saved_items=[])
+
+    @app.route('/api/saved_items/<item_id>', methods=['DELETE'])
+    def delete_saved_item_api(item_id):
+        """Deletes a saved item."""
+        try:
+            db.delete_saved_item(item_id)
+            return jsonify({'success': True})
+        except Exception as e:
+            logging.error(f"Error deleting saved item {item_id}: {e}")
+            return jsonify({'success': False, 'error': str(e)}), 500
+
+    @app.route('/api/saved_items/<item_id>/notes', methods=['POST'])
+    def update_saved_item_notes_api(item_id):
+        """Updates notes for a saved item."""
+        data = request.get_json()
+        notes = data.get('notes')
+        try:
+            db.update_saved_item_notes(item_id, notes)
+            return jsonify({'success': True})
+        except Exception as e:
+            logging.error(f"Error updating notes for saved item {item_id}: {e}")
             return jsonify({'success': False, 'error': str(e)}), 500
 
     @app.route('/manual-search', methods=['GET', 'POST'])
