@@ -133,9 +133,39 @@
             content: ' \25BC'; /* down arrow */
             opacity: 1;
         }
+
+        #toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 2px;
+            padding: 16px;
+            z-index: 1070;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.5s linear;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        #toast.success {
+            background-color: #28a745;
+        }
+
+        #toast.error {
+            background-color: #dc3545;
+        }
     </style>
 </head>
 <body>
+    <div id="toast"></div>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Wallbot</a>
@@ -150,6 +180,9 @@
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="/manual-search">Manual Search</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/saved_searches">Saved Searches</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -157,26 +190,20 @@
     <div class="container mt-4">
         <h1>Manual Wallapop Search</h1>
         <form action="/manual-search" method="post">
-            <div class="row g-1">
-                <div class="col-md-6">
+            <div class="row g-2 align-items-end">
+                <div class="col-lg-4 col-md-12">
                     <label for="keywords" class="form-label">Keywords</label>
                     <input type="text" class="form-control" id="keywords" name="keywords" value="{{ request.form.keywords }}">
                 </div>
-                <div class="col-md-3">
+                <div class="col-lg-2 col-md-3 col-6">
                     <label for="min_price" class="form-label">Min Price</label>
                     <input type="number" class="form-control" id="min_price" name="min_price" value="{{ request.form.min_price }}">
                 </div>
-                <div class="col-md-3">
+                <div class="col-lg-2 col-md-3 col-6">
                     <label for="max_price" class="form-label">Max Price</label>
                     <input type="number" class="form-control" id="max_price" name="max_price" value="{{ request.form.max_price }}">
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">Category</label>
-                    <div id="category-container"></div>
-                    <input type="hidden" id="category_id" name="category_id" value="{{ request.form.category_id }}">
-                    <input type="hidden" id="subcategory_ids" name="subcategory_ids" value="{{ request.form.subcategory_ids }}">
-                </div>
-                <div class="col-md-6">
+                <div class="col-lg-2 col-md-3">
                     <label for="order_by" class="form-label">Order By</label>
                     <select class="form-select" id="order_by" name="order_by">
                         <option value="newest" {% if request.form.order_by == 'newest' %}selected{% endif %}>Newest</option>
@@ -185,7 +212,7 @@
                         <option value="price_high_to_low" {% if request.form.order_by == 'price_high_to_low' %}selected{% endif %}>Price: High to Low</option>
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-lg-2 col-md-3">
                     <label for="time_filter" class="form-label">Time Filter</label>
                     <select class="form-select" id="time_filter" name="time_filter">
                         <option value="" {% if not request.form.time_filter %}selected{% endif %}>Any time</option>
@@ -194,11 +221,31 @@
                         <option value="lastMonth" {% if request.form.time_filter == 'lastMonth' %}selected{% endif %}>Last Month</option>
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <label for="num_pages" class="form-label">Pages to fetch</label>
+
+                <div class="col-lg-5 col-md-12">
+                    <label class="form-label">Category</label>
+                    <div id="category-container"></div>
+                    <input type="hidden" id="category_id" name="category_id" value="{{ request.form.category_id }}">
+                    <input type="hidden" id="subcategory_ids" name="subcategory_ids" value="{{ request.form.subcategory_ids }}">
+                </div>
+
+                <div class="col-lg-2 col-md-3 col-6">
+                    <label for="latitude" class="form-label">Latitude</label>
+                    <input type="text" class="form-control" id="latitude" name="latitude" value="{{ request.form.get('latitude', '40.41956') }}">
+                </div>
+                <div class="col-lg-2 col-md-3 col-6">
+                    <label for="longitude" class="form-label">Longitude</label>
+                    <input type="text" class="form-control" id="longitude" name="longitude" value="{{ request.form.get('longitude', '-3.69196') }}">
+                </div>
+                <div class="col-lg-1 col-md-2">
+                    <label for="distance_in_km" class="form-label">Dist. (km)</label>
+                    <input type="text" class="form-control" id="distance_in_km" name="distance_in_km" value="{{ request.form.get('distance_in_km', '100') }}">
+                </div>
+                <div class="col-lg-1 col-md-2 col-6">
+                    <label for="num_pages" class="form-label">Pages</label>
                     <input type="number" class="form-control" id="num_pages" name="num_pages" value="{{ request.form.get('num_pages', 1) }}" min="1">
                 </div>
-                <div class="col-md-2 d-flex align-items-end">
+                <div class="col-lg-1 col-md-2 col-6">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="fetch_all" name="fetch_all" {% if request.form.get('fetch_all') %}checked{% endif %}>
                         <label class="form-check-label" for="fetch_all">
@@ -206,17 +253,17 @@
                         </label>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <label for="latitude" class="form-label">Latitude</label>
-                    <input type="text" class="form-control" id="latitude" name="latitude" value="{{ request.form.get('latitude', '40.41956') }}">
+            </div>
+            <div class="row g-2 mt-2 align-items-center">
+                <div class="col">
+                    <input type="text" class="form-control" id="request_url" name="request_url" placeholder="Request URL will be generated here">
                 </div>
-                <div class="col-md-4">
-                    <label for="longitude" class="form-label">Longitude</label>
-                    <input type="text" class="form-control" id="longitude" name="longitude" value="{{ request.form.get('longitude', '-3.69196') }}">
-                </div>
-                <div class="col-md-4">
-                    <label for="distance_in_km" class="form-label">Distance (km)</label>
-                    <input type="text" class="form-control" id="distance_in_km" name="distance_in_km" value="{{ request.form.get('distance_in_km', '100') }}">
+                <div class="col-auto">
+                    <button type="button" class="btn btn-outline-danger" id="save-search-btn" title="Save Search">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                            <path d="m8 2.748-.717-.737C5.6.278 2.5 1.505 2.5 4.468c0 1.226.568 2.34 1.546 3.223L8 13.36l3.954-5.668C12.932 6.808 13.5 5.694 13.5 4.468c0-2.963-3.1-4.19-4.783-3.455L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <button type="submit" class="btn btn-primary mt-3">Search</button>
@@ -239,6 +286,7 @@
                         <th class="sortable" data-sort="created">Created At</th>
                         <th class="sortable" data-sort="modified">Modified At</th>
                         <th>Link</th>
+                        <th>Save</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -255,6 +303,13 @@
                         <td class="timestamp" data-timestamp="{{ item.created_at }}"></td>
                         <td class="timestamp" data-timestamp="{{ item.modified_at }}"></td>
                         <td><a href="https://wallapop.com/item/{{ item.web_slug }}" target="_blank">View</a></td>
+                        <td>
+                            <button type="button" class="btn btn-outline-danger save-item-btn" title="Save Item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                                    <path d="m8 2.748-.717-.737C5.6.278 2.5 1.505 2.5 4.468c0 1.226.568 2.34 1.546 3.223L8 13.36l3.954-5.668C12.932 6.808 13.5 5.694 13.5 4.468c0-2.963-3.1-4.19-4.783-3.455L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                                </svg>
+                            </button>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -303,6 +358,7 @@
 
     <script>
         const searchParams = {{ search_params | tojson }};
+        const rawResults = {{ raw_results | tojson }};
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -694,6 +750,44 @@
             } else {
                 attachClickListenersToRows();
             }
+
+            // Save item logic
+            const resultsTableBody = document.querySelector('#results-table tbody');
+            if (resultsTableBody) {
+                resultsTableBody.addEventListener('click', function(e) {
+                    const saveBtn = e.target.closest('.save-item-btn');
+                    if (!saveBtn) return;
+
+                    const row = saveBtn.closest('tr');
+                    const itemId = row.dataset.itemId;
+                    const itemToSave = rawResults.find(item => item.id === itemId);
+
+                    if (!itemToSave) {
+                        showToast('Could not find item data to save.', true);
+                        return;
+                    }
+
+                    fetch('/api/saved_items', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(itemToSave),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('Item saved successfully!');
+                        } else {
+                            showToast(data.error || 'Error saving item', true);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('An error occurred while saving the item.', true);
+                    });
+                });
+            }
         });
     </script>
 </body>
@@ -819,6 +913,112 @@
                         createDropdown(selectedCategory.subcategories, path[0].id);
                     }
                 }
+            });
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const form = document.querySelector('form');
+                const requestUrlInput = document.getElementById('request_url');
+                const saveSearchBtn = document.getElementById('save-search-btn');
+                const toast = document.getElementById('toast');
+                let toastTimeout;
+
+                function showToast(message, isError = false) {
+                    if (toastTimeout) {
+                        clearTimeout(toastTimeout);
+                    }
+                    toast.textContent = message;
+                    toast.className = 'show ' + (isError ? 'error' : 'success');
+                    toastTimeout = setTimeout(function(){ 
+                        toast.className = toast.className.replace('show ', ''); 
+                    }, 3000);
+                }
+
+                function buildApiUrl() {
+                    const params = new URLSearchParams();
+                    const keywords = document.getElementById('keywords').value;
+                    if (keywords) params.append('keywords', keywords);
+
+                    const minPrice = document.getElementById('min_price').value;
+                    if (minPrice) params.append('min_price', minPrice);
+
+                    const maxPrice = document.getElementById('max_price').value;
+                    if (maxPrice) params.append('max_price', maxPrice);
+
+                    const orderBy = document.getElementById('order_by').value;
+                    if (orderBy) params.append('order_by', orderBy);
+
+                    const timeFilter = document.getElementById('time_filter').value;
+                    if (timeFilter) params.append('time_filter', timeFilter);
+
+                    const categoryId = document.getElementById('category_id').value;
+                    if (categoryId) params.append('category_id', categoryId);
+
+                    const subcategoryIds = document.getElementById('subcategory_ids').value;
+                    if (subcategoryIds) params.append('subcategory_ids', subcategoryIds);
+
+                    const latitude = document.getElementById('latitude').value;
+                    if (latitude) params.append('latitude', latitude);
+
+                    const longitude = document.getElementById('longitude').value;
+                    if (longitude) params.append('longitude', longitude);
+
+                    const distanceInKm = document.getElementById('distance_in_km').value;
+                    if (distanceInKm) params.append('distance_in_km', distanceInKm);
+
+                    return `https://api.wallapop.com/api/v3/search?${params.toString()}`;
+                }
+
+                function updateRequestUrl() {
+                    requestUrlInput.value = buildApiUrl();
+                }
+
+                form.addEventListener('input', updateRequestUrl);
+                
+                const categoryContainer = document.getElementById('category-container');
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'childList') {
+                            // When a new dropdown is added or removed, re-attach listeners
+                            const selects = categoryContainer.querySelectorAll('select');
+                            selects.forEach(select => {
+                                select.removeEventListener('change', updateRequestUrl);
+                                select.addEventListener('change', updateRequestUrl);
+                            });
+                        }
+                    });
+                });
+                observer.observe(categoryContainer, { childList: true });
+
+                updateRequestUrl();
+
+                saveSearchBtn.addEventListener('click', function() {
+                    const urlToSave = requestUrlInput.value;
+                    if (!urlToSave) {
+                        showToast('URL is empty.', true);
+                        return;
+                    }
+
+                    fetch('/api/saved_searches', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ url: urlToSave }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('Search saved successfully!');
+                        } else {
+                            showToast(data.error || 'Error saving search', true);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('An error occurred while saving the search.', true);
+                    });
+                });
             });
         </script>
 </body>

@@ -4,7 +4,7 @@ import time
 from typing import List
 
 from src.wallbot.config.settings import DATABASE_PATH
-from src.wallbot.database.models import ChatSearch, Item
+from src.wallbot.database.models import ChatSearch, Item, SavedSearch
 
 
 class DBHelper:
@@ -42,6 +42,23 @@ class DBHelper:
                       "active int default 1)"
         self.__conn.execute(tblstmtchat)
 
+        tblstmtsavedsearches = "create table if not exists saved_searches " \
+                               "(id integer primary key autoincrement, " \
+                               "url text not null unique)"
+        self.__conn.execute(tblstmtsavedsearches)
+
+        tblstmtsaveditems = "create table if not exists saved_items " \
+                              "(id text primary key, " \
+                              "user_id text, " \
+                              "title text, " \
+                              "price text, " \
+                              "description text, " \
+                              "url text, " \
+                              "images text, " \
+                              "item_json text)"
+        self.__conn.execute(tblstmtsaveditems)
+        self.__conn.execute(tblstmtsaveditems)
+
         if version == '1.0.6':
             stmt = "update chat_search " \
                    "set ord = \'newest\' " \
@@ -53,6 +70,43 @@ class DBHelper:
                 logging.error(f"Error setting up the db: {e}")
 
         self.__conn.commit()
+
+    def add_saved_search(self, url):
+        stmt = "insert into saved_searches (url) values (?)"
+        try:
+            self.__conn.execute(stmt, (url,))
+            self.__conn.commit()
+        except sqlite3.IntegrityError:
+            logging.warning(f"URL already exists in saved_searches: {url}")
+            raise
+
+    def get_all_saved_searches(self) -> List[SavedSearch]:
+        stmt = "select id, url from saved_searches order by id desc"
+        searches = []
+        try:
+            for row in self.__conn.execute(stmt):
+                searches.append(SavedSearch(id=row[0], url=row[1]))
+        except Exception as e:
+            logging.error(f"Error getting all saved searches: {e}")
+        return searches
+
+    def delete_saved_search(self, search_id):
+        stmt = "delete from saved_searches where id = ?"
+        try:
+            self.__conn.execute(stmt, (search_id,))
+            self.__conn.commit()
+        except Exception as e:
+            logging.error(f"Error deleting saved search with id {search_id}: {e}")
+
+    def add_saved_item(self, item_data):
+        stmt = "insert into saved_items (id, user_id, title, price, description, url, images, item_json) " \
+               "values (:id, :user_id, :title, :price, :description, :url, :images, :item_json)"
+        try:
+            self.__conn.execute(stmt, item_data)
+            self.__conn.commit()
+        except sqlite3.IntegrityError:
+            logging.warning(f"Item already exists in saved_items: {item_data.get('id')}")
+            raise
 
     def add_search(self, chat_search):
         stmt = "insert into chat_search (chat_id, kws"

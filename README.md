@@ -108,35 +108,40 @@ docker run --name wallbot --env BOT_TOKEN=<YOUR-TOKEN> z0r3f/wallbot-docker:late
 docker save -o wallbot-docker.tar z0r3f/wallbot-docker:latest
 ```
 
-## Target Project Structure
+## Project Structure
 
 ```
 wallapop_bot/
 ├── __init__.py
-├── main.py                    # Punto de entrada principal
+├── main.py
 ├── config/
 │   ├── __init__.py
-│   ├── settings.py           # Configuración general
-│   └── constants.py          # Constantes (emojis, URLs)
+│   ├── settings.py
+│   └── constants.py
 ├── database/
 │   ├── __init__.py
-│   ├── db_helper.py          # Tu DBHelper actual
-│   ├── models.py             # Clases ChatSearch, Item
-│   └── migrations.py         # Migraciones de BD
+│   ├── db_helper.py
+│   └── models.py
 ├── telegram/
 │   ├── __init__.py
-│   ├── bot.py                # Configuración del bot
-│   ├── handlers.py           # Manejadores de comandos
-│   └── notifications.py      # Función notel y similares
+│   ├── bot.py
+│   ├── handlers.py
+│   └── notifications.py
 ├── wallapop/
 │   ├── __init__.py
-│   ├── api_client.py         # Cliente API Wallapop
-│   ├── search.py             # Lógica de búsqueda
-│   └── item_processor.py     # Procesamiento de items
+│   ├── api_client.py
+│   ├── api_models.py
+│   ├── categories.py
+│   └── monitor.py
 ├── utils/
 │   ├── __init__.py
-│   ├── logger.py             # Configuración de logging
-│   ├── currency.py           # Utilidades de moneda
-│   └── exceptions.py         # Excepciones personalizadas
+│   ├── logger.py
+│   └── version.py
+├── web/
+│   ├── app.py
+│   └── templates/
+│       ├── index.html
+│       ├── manual_search.html
+│       └── searches.html
 └── requirements.txt
 ```

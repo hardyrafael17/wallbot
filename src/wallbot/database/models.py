@@ -31,3 +31,9 @@ class Item:
         self.publish_date = publish_date
         self.observaciones = observaciones
         self.item = item
+
+
+class SavedSearch:
+    def __init__(self, id, url):
+        self.id = id
+        self.url = url
