@@ -437,7 +437,18 @@
                     if (row.dataset.listenerAttached) return;
                     row.dataset.listenerAttached = true;
 
-                    row.addEventListener('click', function () {
+                    row.addEventListener('click', function (e) {
+                        // Check if the click originated from a save button, distance link, or view link
+                        const target = e.target;
+                        const saveBtn = target.closest('.save-item-btn');
+                        const distanceLink = target.closest('a[href*="google.com/maps"]');
+                        const viewLink = target.closest('a[href*="wallapop.com/item"]');
+                        
+                        // If click is on save button, distance link, or view link, don't open the modal
+                        if (saveBtn || distanceLink || viewLink) {
+                            return; // Exit early, don't trigger the modal
+                        }
+                        
                         const itemId = this.dataset.itemId;
                         const createdAt = this.dataset.createdAt;
                         itemDetailsContent.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
@@ -547,6 +558,21 @@
                         closeFullscreen();
                     }
                 });
+            }
+
+            // Define showToast function to be available globally within this script
+            function showToast(message, isError = false) {
+                const toast = document.getElementById('toast');
+                let toastTimeout;
+                
+                if (toastTimeout) {
+                    clearTimeout(toastTimeout);
+                }
+                toast.textContent = message;
+                toast.className = 'show ' + (isError ? 'error' : 'success');
+                toastTimeout = setTimeout(function(){ 
+                    toast.className = toast.className.replace('show ', ''); 
+                }, 3000);
             }
 
             // Table pagination, sorting and filtering
@@ -754,43 +780,7 @@
                 attachClickListenersToRows();
             }
 
-            // Save item logic
-            const resultsTableBody = document.querySelector('#results-table tbody');
-            if (resultsTableBody) {
-                resultsTableBody.addEventListener('click', function(e) {
-                    const saveBtn = e.target.closest('.save-item-btn');
-                    if (!saveBtn) return;
-
-                    const row = saveBtn.closest('tr');
-                    const itemId = row.dataset.itemId;
-                    const itemToSave = rawResults.find(item => item.id === itemId);
-
-                    if (!itemToSave) {
-                        showToast('Could not find item data to save.', true);
-                        return;
-                    }
-
-                    fetch('/api/saved_items', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(itemToSave),
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showToast('Item saved successfully!');
-                        } else {
-                            showToast(data.error || 'Error saving item', true);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showToast('An error occurred while saving the item.', true);
-                    });
-                });
-            }
+            
         });
     </script>
 </body>
@@ -1022,6 +1012,47 @@
                         showToast('An error occurred while saving the search.', true);
                     });
                 });
+            });
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Save item logic - moved here to access the showToast function
+                const resultsTableBody = document.querySelector('#results-table tbody');
+                if (resultsTableBody) {
+                    resultsTableBody.addEventListener('click', function(e) {
+                        const saveBtn = e.target.closest('.save-item-btn');
+                        if (!saveBtn) return;
+
+                        const row = saveBtn.closest('tr');
+                        const itemId = row.dataset.itemId;
+                        const itemToSave = rawResults.find(item => item.id === itemId);
+
+                        if (!itemToSave) {
+                            showToast('Could not find item data to save.', true);
+                            return;
+                        }
+
+                        fetch('/api/saved_items', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(itemToSave),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                showToast('Item saved successfully!');
+                            } else {
+                                showToast(data.error || 'Error saving item', true);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showToast('An error occurred while saving the item.', true);
+                        });
+                    });
+                }
             });
         </script>
 </body>

@@ -6,6 +6,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from src.wallbot.wallapop.api_client import WallapopClient
 from src.wallbot.wallapop.api_models import ApiSearchItem, ApiPrice, ApiImage, ApiImageUrls, ApiLocation, ApiShipping, ApiTaxonomy, ApiDiscount
 from src.wallbot.wallapop.categories import CategoryService
+from src.wallbot.database.models import Item
 
 
 def _parse_search_args(args):
@@ -113,6 +114,25 @@ def create_web_app(db):
         db: An instance of DBHelper to interact with the database.
     """
     app = Flask(__name__)
+
+    def fromjson_filter(value):
+        try:
+            return json.loads(value)
+        except (json.JSONDecodeError, TypeError):
+            return None
+
+    def attr_filter(value, key, index=None):
+        try:
+            res = value[key]
+            if index is not None:
+                return res[index]
+            return res
+        except (KeyError, IndexError, TypeError):
+            return None
+
+    app.jinja_env.filters['fromjson'] = fromjson_filter
+    app.jinja_env.filters['attr'] = attr_filter
+
     # A secret key is required for flashing messages
     app.secret_key = 'supersecretkey'
     wallapop_client = WallapopClient()

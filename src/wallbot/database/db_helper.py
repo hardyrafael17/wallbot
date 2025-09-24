@@ -59,6 +59,12 @@ class DBHelper:
                               "item text, " \
                               "notes text)"
         self.__conn.execute(tblstmtsaveditems)
+        try:
+            self.__conn.execute("alter table saved_items add column item_id text")
+            self.__conn.execute("update saved_items set item_id = rowid where item_id is null")
+            self.__conn.commit()
+        except sqlite3.OperationalError:
+            pass
 
         if version == '1.0.6':
             stmt = "update chat_search " \
