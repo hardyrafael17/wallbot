@@ -24,6 +24,9 @@
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="/saved_searches">Saved Searches</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="fetch('/restart', { method: 'POST' })">Restart</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -44,6 +47,8 @@
             <thead>
                 <tr>
                     <th>URL</th>
+                    <th>Period (min)</th>
+                    <th>Pages</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -51,7 +56,12 @@
                 {% for search in searches %}
                 <tr>
                     <td><a href="{{ url_for('manual_search', request_url=search.url) }}">{{ search.url }}</a></td>
+                    <td>{{ search.period }}</td>
+                    <td>{{ search.pages }}</td>
                     <td>
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal" data-search-id="{{ search.id }}" data-search-url="{{ search.url }}" data-search-period="{{ search.period }}" data-search-pages="{{ search.pages }}">
+                            Edit
+                        </button>
                         <form action="{{ url_for('delete_saved_search', search_id=search.id) }}" method="post" style="display: inline;">
                             <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                         </form>
@@ -59,12 +69,72 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="2">No saved searches yet.</td>
+                    <td colspan="4">No saved searches yet.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+
+        <!-- Edit Modal -->
+        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editModalLabel">Edit Saved Search</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editForm" method="post">
+                            <input type="hidden" id="editSearchId" name="search_id">
+                            <div class="mb-3">
+                                <label for="editSearchUrl" class="form-label">URL</label>
+                                <input type="text" class="form-control" id="editSearchUrl" name="url">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editSearchPeriod" class="form-label">Period (min)</label>
+                                <input type="number" class="form-control" id="editSearchPeriod" name="period">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editSearchPages" class="form-label">Pages</label>
+                                <input type="number" class="form-control" id="editSearchPages" name="pages">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" form="editForm" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        var editModal = document.getElementById('editModal');
+        editModal.addEventListener('show.bs.modal', function (event) {
+            // Button that triggered the modal
+            var button = event.relatedTarget;
+            // Extract info from data-bs-* attributes
+            var searchId = button.getAttribute('data-search-id');
+            var searchUrl = button.getAttribute('data-search-url');
+            var searchPeriod = button.getAttribute('data-search-period');
+            var searchPages = button.getAttribute('data-search-pages');
+
+            // Update the modal's content.
+            var modalTitle = editModal.querySelector('.modal-title');
+            var searchIdInput = editModal.querySelector('#editSearchId');
+            var searchUrlInput = editModal.querySelector('#editSearchUrl');
+            var searchPeriodInput = editModal.querySelector('#editSearchPeriod');
+            var searchPagesInput = editModal.querySelector('#editSearchPages');
+            var editForm = editModal.querySelector('#editForm');
+
+            modalTitle.textContent = 'Edit Saved Search #' + searchId;
+            searchIdInput.value = searchId;
+            searchUrlInput.value = searchUrl;
+            searchPeriodInput.value = searchPeriod;
+            searchPagesInput.value = searchPages;
+            editForm.action = '/api/saved_searches/update/' + searchId;
+        });
+    </script>
 </body>
 </html>

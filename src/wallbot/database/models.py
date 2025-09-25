@@ -35,6 +35,8 @@ class Item:
 
 
 class SavedSearch:
-    def __init__(self, id, url):
+    def __init__(self, id, url, period=5, pages=2):
         self.id = id
         self.url = url
+        self.period = period
+        self.pages = pages

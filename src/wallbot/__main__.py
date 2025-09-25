@@ -3,6 +3,8 @@ import threading
 
 # Import the original main function and rename it for clarity
 from .main import main as run_bot_logic
+from src.wallbot.database.db_helper import DBHelper
+from src.wallbot.web.app import create_web_app
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -12,8 +14,11 @@ def run_web_server():
     Starts the Flask web server in a production-ready way using Waitress.
     """
     try:
-        # Assuming your Flask app instance is named 'app' inside 'src.wallbot.web.app'
-        from src.wallbot.web.app import app
+        # Create a DBHelper instance
+        db = DBHelper()
+        # Create the Flask app using the factory function
+        app = create_web_app(db)
+        
         from waitress import serve
         logging.info("Starting web server on http://0.0.0.0:8080")
         # Use waitress to serve the app. It's a production-ready WSGI server.

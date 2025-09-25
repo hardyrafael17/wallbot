@@ -1,6 +1,8 @@
 import logging
 import json
 import sqlite3
+import os
+import sys
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 
 from src.wallbot.wallapop.api_client import WallapopClient
@@ -225,6 +227,20 @@ def create_web_app(db):
             flash("Error deleting saved search.", "error")
         return redirect(url_for('saved_searches'))
 
+    @app.route('/api/saved_searches/update/<int:search_id>', methods=['POST'])
+    def update_saved_search(search_id):
+        """Updates a saved search."""
+        url = request.form.get('url')
+        period = request.form.get('period')
+        pages = request.form.get('pages')
+        try:
+            db.update_saved_search(search_id, url, period, pages)
+            flash(f"Saved search #{search_id} has been updated.", "success")
+        except Exception as e:
+            logging.error(f"Error updating saved search: {e}")
+            flash("Error updating saved search.", "error")
+        return redirect(url_for('saved_searches'))
+
     @app.route('/api/saved_items', methods=['POST'])
     def add_saved_item():
         """Adds a new saved item."""
@@ -373,5 +389,10 @@ def create_web_app(db):
     @app.route('/api/categories')
     def get_categories():
         return jsonify(json.loads(category_service.get_categories_as_json()))
+
+    @app.route('/restart', methods=['POST'])
+    def restart():
+        logging.info("Restarting application...")
+        os.execv(sys.executable, [sys.executable, '-m', 'src.wallbot'])
 
     return app

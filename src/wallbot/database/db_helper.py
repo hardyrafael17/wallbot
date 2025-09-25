@@ -48,6 +48,13 @@ class DBHelper:
                                "url text not null unique)"
         self.__conn.execute(tblstmtsavedsearches)
 
+        try:
+            self.__conn.execute("alter table saved_searches add column period integer default 5")
+            self.__conn.execute("alter table saved_searches add column pages integer default 2")
+            self.__conn.commit()
+        except sqlite3.OperationalError:
+            pass
+
         tblstmtsaveditems = "create table if not exists saved_items " \
                               "(item_id text primary key, " \
                               "chat_id text, " \
@@ -78,21 +85,21 @@ class DBHelper:
 
         self.__conn.commit()
 
-    def add_saved_search(self, url):
-        stmt = "insert into saved_searches (url) values (?)"
+    def add_saved_search(self, url, period=5, pages=2):
+        stmt = "insert into saved_searches (url, period, pages) values (?, ?, ?)"
         try:
-            self.__conn.execute(stmt, (url,))
+            self.__conn.execute(stmt, (url, period, pages))
             self.__conn.commit()
         except sqlite3.IntegrityError:
             logging.warning(f"URL already exists in saved_searches: {url}")
             raise
 
     def get_all_saved_searches(self) -> List[SavedSearch]:
-        stmt = "select id, url from saved_searches order by id desc"
+        stmt = "select id, url, period, pages from saved_searches order by id desc"
         searches = []
         try:
             for row in self.__conn.execute(stmt):
-                searches.append(SavedSearch(id=row[0], url=row[1]))
+                searches.append(SavedSearch(id=row[0], url=row[1], period=row[2], pages=row[3]))
         except Exception as e:
             logging.error(f"Error getting all saved searches: {e}")
         return searches
@@ -104,6 +111,14 @@ class DBHelper:
             self.__conn.commit()
         except Exception as e:
             logging.error(f"Error deleting saved search with id {search_id}: {e}")
+
+    def update_saved_search(self, search_id, url, period, pages):
+        stmt = "update saved_searches set url = ?, period = ?, pages = ? where id = ?"
+        try:
+            self.__conn.execute(stmt, (url, period, pages, search_id))
+            self.__conn.commit()
+        except Exception as e:
+            logging.error(f"Error updating saved search with id {search_id}: {e}")
 
     def update_saved_item_notes(self, item_id, notes):
         stmt = "update saved_items set notes = ? where item_id = ?"
