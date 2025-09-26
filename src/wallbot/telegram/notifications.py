@@ -1,22 +1,18 @@
 import locale
 import logging
-import requests
-
+from telegram import Bot
 from src.wallbot.config.constants import ICON_EXCLAMATION, ICON_DIRECT_HIT, ICON_COLLISION
-from src.wallbot.config.settings import TELEGRAM_API_URL
+from src.wallbot.config.settings import TOKEN, TELEGRAM_CHAT_ID
 
+bot = Bot(TOKEN)
 
-def send_telegram_message(chat_id, text):
-    url = TELEGRAM_API_URL + f"sendMessage?chat_id={chat_id}&text={text}"
+async def send_telegram_message(chat_id, text):
     try:
-        response = requests.get(url)
-        logging.info(f"Telegram API response: {response.status_code} - {response.text}")
-        response.raise_for_status()  # Raise an exception for bad status codes
-    except requests.exceptions.RequestException as e:
+        await bot.send_message(chat_id=chat_id, text=text)
+    except Exception as e:
         logging.error(f"Error sending Telegram message: {e}")
 
-
-def notel(chat_id, price, title, url_item, obs=None):
+async def notel(chat_id, price, title, url_item, obs=None):
     # https://apps.timwhitlock.info/emoji/tables/unicode
     if obs is not None:
         text = ICON_EXCLAMATION
@@ -32,13 +28,12 @@ def notel(chat_id, price, title, url_item, obs=None):
         text += f' {ICON_COLLISION}'
     text += '\n'
     text += f'https://es.wallapop.com/item/{url_item}'
-    send_telegram_message(chat_id, text)
+    await send_telegram_message(chat_id, text)
 
-
-def notify_search_results(chat_id, search_url):
-    text = f"results found for search -{search_url}-"
-    send_telegram_message(chat_id, text)
-
-def notify_search_attempt(chat_id, search_url):
-    text = f"searching saved search {search_url}"
-    send_telegram_message(chat_id, text)
+async def notify_grouped_search_results(chat_id, message):
+    max_length = 4000
+    if len(message) > max_length:
+        for i in range(0, len(message), max_length):
+            await send_telegram_message(chat_id, message[i:i+max_length])
+    else:
+        await send_telegram_message(chat_id, message)

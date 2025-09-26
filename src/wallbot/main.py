@@ -1,9 +1,10 @@
 import logging
 import threading
+import asyncio
 
 from src.wallbot.telegram.handlers import TelegramHandlers
 from .database.db_helper import DBHelper
-from .telegram.bot import create_bot, recovery
+from .telegram.bot import create_application
 from .utils.logger import setup_logger
 from .utils.version import read_version
 from waitress import serve
@@ -18,17 +19,17 @@ def main():
     db = DBHelper()
     db.setup(read_version())
 
-    bot = create_bot()
+    application = create_application()
 
-    TelegramHandlers(bot, db)
+    TelegramHandlers(application, db)
 
     monitor = WallapopMonitor(db)
     threading.Thread(target=monitor.start, daemon=True).start()
 
     # Start the search monitor in a separate thread
-    threading.Thread(target=check_saved_searches, daemon=True).start()
+    threading.Thread(target=lambda: asyncio.run(check_saved_searches()), daemon=True).start()
 
-    recovery(bot, 1)
+    application.run_polling()
 
 
 if __name__ == '__main__':

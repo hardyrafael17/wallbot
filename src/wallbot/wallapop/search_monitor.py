@@ -1,15 +1,16 @@
 import logging
 import time
 import json
+import asyncio
 from src.wallbot.database.db_helper import DBHelper
 from src.wallbot.wallapop.api_client import WallapopClient
-from src.wallbot.telegram.notifications import notify_search_results, notify_search_attempt
+from src.wallbot.telegram.notifications import notify_grouped_search_results
 from src.wallbot.config.settings import TELEGRAM_CHAT_ID
 
 # In-memory store for last run timestamps
 last_run_timestamps = {}
 
-def check_saved_searches():
+async def check_saved_searches():
     logging.info("Starting saved searches monitor...")
     db_helper = DBHelper()
     db_helper.setup()
@@ -23,11 +24,9 @@ def check_saved_searches():
             current_time = time.time()
             last_run = last_run_timestamps.get(search.id, 0)
 
-            # Check if it's time to run the search based on its period
             if current_time - last_run > search.period * 60:
                 logging.info(f"Trying search {search.id}")
-                notify_search_attempt(TELEGRAM_CHAT_ID, search.url)
-                new_items_found = False
+                new_items = []
                 try:
                     from urllib.parse import urlparse, parse_qs
                     parsed_url = urlparse(search.url)
@@ -39,13 +38,13 @@ def check_saved_searches():
 
                     page_count = 1
                     if response_json:
-                        search_objects = response_json.get("search_objects", [])
-                        for item in search_objects:
+                        raw_items = response_json.get('data', {}).get('section', {}).get('payload', {}).get('items', [])
+                        for item in raw_items:
                             item_id = item.get("id")
                             if item_id and not db_helper.search_result_exists(search.id, item_id):
                                 db_helper.add_search_result(search.id, item_id, json.dumps(item))
                                 logging.info(f"New item found for search {search.id}: {item_id}")
-                                new_items_found = True
+                                new_items.append(item)
 
                         next_page = response_json.get('meta', {}).get('next_page')
                         while next_page and page_count < search.pages:
@@ -54,24 +53,30 @@ def check_saved_searches():
                             response_json = wallapop_client.search_items_from_web(next_page=next_page)
                             logging.info(f"Result status: {response_json is not None}")
                             if response_json:
-                                search_objects = response_json.get("search_objects", [])
-                                for item in search_objects:
+                                raw_items = response_json.get('data', {}).get('section', {}).get('payload', {}).get('items', [])
+                                for item in raw_items:
                                     item_id = item.get("id")
                                     if item_id and not db_helper.search_result_exists(search.id, item_id):
                                         db_helper.add_search_result(search.id, item_id, json.dumps(item))
                                         logging.info(f"New item found for search {search.id}: {item_id}")
-                                        new_items_found = True
+                                        new_items.append(item)
                                 next_page = response_json.get('meta', {}).get('next_page')
                             else:
                                 next_page = None
 
-                    if new_items_found:
-                        notify_search_results(TELEGRAM_CHAT_ID, search.url)
+                    if new_items:
+                        search_title = query_params.get('keywords', ['no keywords'])[0]
+                        message = f"Search: {search_title}\n"
+                        for i, item in enumerate(new_items, 1):
+                            item_title = item.get('title', 'No title')
+                            item_price = item.get('price', {'amount': 'N/A'}).get('amount', 'N/A')
+                            item_url = item.get('web_slug', 'No link')
+                            message += f"{i}- {item_title} - {item_price}\n    https://es.wallapop.com/item/{item_url}\n"
+                        await notify_grouped_search_results(TELEGRAM_CHAT_ID, message)
 
                 except Exception as e:
                     logging.error(f"Error processing search {search.id}: {e}")
                 
                 last_run_timestamps[search.id] = current_time
 
-        # Wait for 5 minutes before the next check
-        time.sleep(300)
+        await asyncio.sleep(300)
