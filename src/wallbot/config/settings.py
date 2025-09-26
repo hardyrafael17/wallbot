@@ -5,6 +5,7 @@ load_dotenv()
 
 TOKEN = os.getenv("BOT_TOKEN", "Bot Token does not exist")
 PROFILE = os.getenv("PROFILE")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "-1003106570436")
 
 TELEGRAM_API_URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 WALLAPOP_API_URL = "https://api.wallapop.com/api/v3/search"
