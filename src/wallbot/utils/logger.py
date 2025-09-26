@@ -2,6 +2,7 @@ import locale
 import logging
 import sys
 from logging.handlers import RotatingFileHandler
+import coloredlogs
 
 from src.wallbot.config.settings import PROFILE
 
@@ -17,18 +18,34 @@ def setup_logger():
         logging.basicConfig(
             handlers=[RotatingFileHandler(log_path, maxBytes=1000000, backupCount=10)],
             level=level,
-            format='%(asctime)s %(message)s',
+            format='%(asctime)s %(filename)s:%(lineno)d %(message)s',
             datefmt='%m/%d/%Y %H:%M:%S'
         )
     else:
         # Configuración con archivo y salida estándar cuando PROFILE está definido
+        coloredlogs.install(
+            level=level,
+            stream=sys.stdout,
+            fmt='%(filename)s:%(lineno)d - %(message)s',
+            field_styles={
+                'filename': {'color': 'magenta'},
+                'lineno': {'color': 'blue'},
+                'message': {'color': 'white'}
+            },
+            level_styles={
+                'debug': {'color': 'cyan'},
+                'info': {'color': 'green'},
+                'warning': {'color': 'yellow'},
+                'error': {'color': 'red'},
+                'critical': {'color': 'red', 'bold': True}
+            }
+        )
         logging.basicConfig(
             handlers=[
-                RotatingFileHandler(log_path, maxBytes=1000000, backupCount=10),
-                logging.StreamHandler(sys.stdout)
+                RotatingFileHandler(log_path, maxBytes=1000000, backupCount=10)
             ],
             level=level,
-            format='%(asctime)s %(message)s',
+            format='%(asctime)s %(filename)s:%(lineno)d %(message)s',
             datefmt='%m/%d/%Y %H:%M:%S'
         )
 

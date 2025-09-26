@@ -5,9 +5,7 @@ import threading
 from .main import main as run_bot_logic
 from src.wallbot.database.db_helper import DBHelper
 from src.wallbot.web.app import create_web_app
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
+from src.wallbot.utils.logger import setup_logger
 
 def run_web_server():
     """
@@ -31,6 +29,7 @@ def run_web_server():
 
 
 if __name__ == "__main__":
+    setup_logger()
     # Start the web server in a non-blocking background thread.
     # The 'daemon=True' flag ensures the thread will exit when the main program exits.
     web_thread = threading.Thread(target=run_web_server, daemon=True)

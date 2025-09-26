@@ -40,3 +40,10 @@ class SavedSearch:
         self.url = url
         self.period = period
         self.pages = pages
+
+
+class SearchResult:
+    def __init__(self, search_id, item_id, item_json):
+        self.search_id = search_id
+        self.item_id = item_id
+        self.item_json = item_json

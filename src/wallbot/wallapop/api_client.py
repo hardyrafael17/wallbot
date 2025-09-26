@@ -71,7 +71,7 @@ class WallapopClient:
             if 'order_by' in kwargs and kwargs['order_by']:
                 url += f"&order_by={kwargs['order_by']}"
 
-        logging.info(f"API Wallapop (Web) ->: {url}")
+        # logging.info(f"API Wallapop (Web) ->: {url}")
         try:
             response = requests.get(url=url, headers=self.headers)
             response.raise_for_status()
@@ -112,6 +112,8 @@ class WallapopClient:
         logging.debug(f"API Wallapop (GET) ->: {url} with params {params}")
         try:
             response = requests.get(url=url, headers=self.headers, params=params)
+            # Log the response for debugging
+            # logging.debug(f"API Wallapop (GET) <-: {response.status_code} {response.text}")
             response.raise_for_status()
             return response
         except requests.RequestException as e:

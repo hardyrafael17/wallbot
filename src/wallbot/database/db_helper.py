@@ -66,6 +66,14 @@ class DBHelper:
                               "item text, " \
                               "notes text)"
         self.__conn.execute(tblstmtsaveditems)
+
+        tblstmtsearchresults = "create table if not exists search_results " \
+                                 "(search_id integer, " \
+                                 "item_id text, " \
+                                 "item_json text, " \
+                                 "primary key (search_id, item_id))"
+        self.__conn.execute(tblstmtsearchresults)
+
         try:
             self.__conn.execute("alter table saved_items add column item_id text")
             self.__conn.execute("update saved_items set item_id = rowid where item_id is null")
@@ -103,6 +111,23 @@ class DBHelper:
         except Exception as e:
             logging.error(f"Error getting all saved searches: {e}")
         return searches
+
+    def add_search_result(self, search_id, item_id, item_json):
+        stmt = "insert into search_results (search_id, item_id, item_json) values (?, ?, ?)"
+        try:
+            self.__conn.execute(stmt, (search_id, item_id, item_json))
+            self.__conn.commit()
+        except sqlite3.IntegrityError:
+            logging.warning(f"Item {item_id} already exists for search {search_id}")
+            raise
+
+    def search_result_exists(self, search_id, item_id):
+        stmt = "select 1 from search_results where search_id = ? and item_id = ?"
+        try:
+            return self.__conn.execute(stmt, (search_id, item_id)).fetchone() is not None
+        except Exception as e:
+            logging.error(f"Error checking if search result exists for search {search_id} and item {item_id}: {e}")
+            return False
 
     def delete_saved_search(self, search_id):
         stmt = "delete from saved_searches where id = ?"
