@@ -66,12 +66,12 @@ async def check_saved_searches():
 
                     if new_items:
                         search_title = query_params.get('keywords', ['no keywords'])[0]
-                        message = f"Search: {search_title}\n"
+                        message = f"**Search:** {search_title}\n"
                         for i, item in enumerate(new_items, 1):
                             item_title = item.get('title', 'No title')
                             item_price = item.get('price', {'amount': 'N/A'}).get('amount', 'N/A')
                             item_url = item.get('web_slug', 'No link')
-                            message += f"{i}- {item_title} - {item_price}\n    https://es.wallapop.com/item/{item_url}\n"
+                            message += f"{i}- **Desc.:** {item_title} - **Precio:** {item_price}\n    https://es.wallapop.com/item/{item_url}\n"
                         await notify_grouped_search_results(TELEGRAM_CHAT_ID, message)
 
                 except Exception as e:
