@@ -2,6 +2,12 @@
 
 This document outlines the standards and conventions used in this project.
 
+## Gemini Instructions
+
+- Every time a structural change occurs in the project, this file must be updated to reflect the new structure.
+- Never create tests for the app.
+- Never try to run the app through the Gemini console.
+
 ## Continuous Integration and Deployment (CI/CD)
 
 - **CI Provider:** GitHub Actions
@@ -44,36 +50,77 @@ The project follows the structure outlined in the `README.md` file.
 
 ```
 wallapop_bot/
-├── __init__.py
-├── main.py
-├── config/
+├── __main__.py
+├── .env.example
+├── .gitignore
+├── changelog
+├── channel info.json
+├── dev.notes.txt
+├── Dockerfile
+├── GEMINI.md
+├── LICENSE
+├── notenv copy
+├── objects.txt
+├── pytest.ini
+├── README.md
+├── requests.txt
+├── requirements-dev.txt
+├── requirements.txt
+├── run_web.bat
+├── run_web.sh
+├── run.bat
+├── run.sh
+├── sqlite3_instructions.txt
+├── start.sh
+├── VERSION
+├── .git/
+├── .github/
+│   └── workflows/
+│       ├── docker-release.yml
+│       └── main.yml
+├── .ruff_cache/
+├── data/
+├── logs/
+├── src/
 │   ├── __init__.py
-│   ├── settings.py
-│   └── constants.py
-├── database/
+│   └── wallbot/
+│       ├── __init__.py
+│       ├── __main__.py
+│       ├── main.py
+│       ├── config/
+│       │   ├── __init__.py
+│       │   ├── constants.py
+│       │   └── settings.py
+│       ├── database/
+│       │   ├── __init__.py
+│       │   ├── db_helper.py
+│       │   └── models.py
+│       ├── telegram/
+│       │   ├── __init__.py
+│       │   ├── bot.py
+│       │   ├── handlers.py
+│       │   └── notifications.py
+│       ├── utils/
+│       │   ├── __init__.py
+│       │   ├── logger.py
+│       │   └── version.py
+│       ├── wallapop/
+│       │   ├── __init__.py
+│       │   ├── api_client.py
+│       │   ├── api_models.py
+│       │   ├── categories.py
+│       │   ├── monitor.py
+│       │   └── search_monitor.py
+│       └── web/
+│           ├── app.py
+│           └── templates/
+│               ├── index.html
+│               ├── manual_search.html
+│               ├── saved_items_list.html
+│               ├── saved_searches.html
+│               └── searches.html
+├── tests/
 │   ├── __init__.py
-│   ├── db_helper.py
-│   └── models.py
-├── telegram/
-│   ├── __init__.py
-│   ├── bot.py
-│   ├── handlers.py
-│   └── notifications.py
-├── wallapop/
-│   ├── __init__.py
-│   ├── api_client.py
-│   ├── api_models.py
-│   ├── categories.py
-│   └── monitor.py
-├── utils/
-│   ├── __init__.py
-│   ├── logger.py
-│   └── version.py
-├── web/
-│   ├── app.py
-│   └── templates/
-│       ├── index.html
-│       ├── manual_search.html
-│       └── searches.html
-└── requirements.txt
+│   └── test_version.py
+└── venv/
 ```
