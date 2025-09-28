@@ -12,7 +12,7 @@ class DBHelper:
         # Use the centralized DATABASE_PATH from settings, but allow overrides.
         calculated_db_name = dbname if dbname is not None else DATABASE_PATH
         # logging.info(f"DB: {calculated_db_name}")
-        self.__conn = sqlite3.connect(calculated_db_name, check_same_thread=False)
+        self.__conn = sqlite3.connect(calculated_db_name, timeout=15, check_same_thread=False)
 
     def setup(self, version=""):
         tblstmtitem = "create table if not exists item " \
@@ -35,9 +35,9 @@ class DBHelper:
                       "cat_ids text, " \
                       "min_price text, " \
                       "max_price text, " \
-                      "dist text default \'400\', " \
+                      "dist text default '400', " \
                       "publish_date integer default 24, " \
-                      "ord text default \'newest\', " \
+                      "ord text default 'newest', " \
                       "username text, " \
                       "name text, " \
                       "active int default 1)"
@@ -48,12 +48,24 @@ class DBHelper:
                                "url text not null unique)"
         self.__conn.execute(tblstmtsavedsearches)
 
+        # Each ALTER TABLE should be in its own try/except block
+        # to handle columns being added incrementally across versions.
         try:
             self.__conn.execute("alter table saved_searches add column period integer default 5")
-            self.__conn.execute("alter table saved_searches add column pages integer default 2")
-            self.__conn.commit()
         except sqlite3.OperationalError:
-            pass
+            pass # Column already exists
+        try:
+            self.__conn.execute("alter table saved_searches add column pages integer default 2")
+        except sqlite3.OperationalError:
+            pass # Column already exists
+        try:
+            self.__conn.execute("alter table saved_searches add column positive_words text default ''")
+        except sqlite3.OperationalError:
+            pass # Column already exists
+        try:
+            self.__conn.execute("alter table saved_searches add column negative_words text default ''")
+        except sqlite3.OperationalError:
+            pass # Column already exists
 
         tblstmtsaveditems = "create table if not exists saved_items " \
                               "(item_id text primary key, " \
@@ -71,8 +83,15 @@ class DBHelper:
                                  "(search_id integer, " \
                                  "item_id text, " \
                                  "item_json text, " \
+                                 "skipped boolean default false, " \
                                  "primary key (search_id, item_id))"
         self.__conn.execute(tblstmtsearchresults)
+
+        # Add 'skipped' column to 'search_results' if it doesn't exist
+        try:
+            self.__conn.execute("alter table search_results add column skipped boolean default false")
+        except sqlite3.OperationalError:
+            pass # Column already exists
 
         try:
             self.__conn.execute("alter table saved_items add column item_id text")
@@ -83,8 +102,8 @@ class DBHelper:
 
         if version == '1.0.6':
             stmt = "update chat_search " \
-                   "set ord = \'newest\' " \
-                   "where ord = \'creationDate-des\'"
+                   "set ord = 'newest' " \
+                   "where ord = 'creationDate-des'"
             try:
                 self.__conn.execute(stmt)
                 self.__conn.commit()
@@ -103,19 +122,29 @@ class DBHelper:
             raise
 
     def get_all_saved_searches(self) -> List[SavedSearch]:
-        stmt = "select id, url, period, pages from saved_searches order by id desc"
+        stmt = "select id, url, period, pages, positive_words, negative_words from saved_searches order by id desc"
         searches = []
         try:
             for row in self.__conn.execute(stmt):
-                searches.append(SavedSearch(id=row[0], url=row[1], period=row[2], pages=row[3]))
+                searches.append(SavedSearch(id=row[0], url=row[1], period=row[2], pages=row[3], positive_words=row[4], negative_words=row[5]))
         except Exception as e:
             logging.error(f"Error getting all saved searches: {e}")
         return searches
 
-    def add_search_result(self, search_id, item_id, item_json):
-        stmt = "insert into search_results (search_id, item_id, item_json) values (?, ?, ?)"
+    def get_saved_search_by_id(self, search_id) -> SavedSearch:
+        stmt = "select id, url, period, pages, positive_words, negative_words from saved_searches where id = ?"
         try:
-            self.__conn.execute(stmt, (search_id, item_id, item_json))
+            row = self.__conn.execute(stmt, (search_id,)).fetchone()
+            if row:
+                return SavedSearch(id=row[0], url=row[1], period=row[2], pages=row[3], positive_words=row[4], negative_words=row[5])
+        except Exception as e:
+            logging.error(f"Error getting saved search by id: {e}")
+        return None
+
+    def add_search_result(self, search_id, item_id, item_json, skipped=False):
+        stmt = "insert into search_results (search_id, item_id, item_json, skipped) values (?, ?, ?, ?)"
+        try:
+            self.__conn.execute(stmt, (search_id, item_id, item_json, skipped))
             self.__conn.commit()
         except sqlite3.IntegrityError:
             logging.warning(f"Item {item_id} already exists for search {search_id}")
@@ -130,20 +159,40 @@ class DBHelper:
             return False
 
     def delete_saved_search(self, search_id):
-        stmt = "delete from saved_searches where id = ?"
+        """Deletes a saved search and its associated results."""
         try:
+            # Delete associated results first to maintain data integrity
+            stmt_results = "delete from search_results where search_id = ?"
+            self.__conn.execute(stmt_results, (search_id,))
+            stmt = "delete from saved_searches where id = ?"
             self.__conn.execute(stmt, (search_id,))
             self.__conn.commit()
         except Exception as e:
             logging.error(f"Error deleting saved search with id {search_id}: {e}")
 
-    def update_saved_search(self, search_id, url, period, pages):
-        stmt = "update saved_searches set url = ?, period = ?, pages = ? where id = ?"
+    def update_saved_search(self, search_id, url, period, pages, positive_words, negative_words):
+        stmt = "update saved_searches set url = ?, period = ?, pages = ?, positive_words = ?, negative_words = ? where id = ?"
         try:
-            self.__conn.execute(stmt, (url, period, pages, search_id))
+            self.__conn.execute(stmt, (url, period, pages, positive_words, negative_words, search_id))
             self.__conn.commit()
         except Exception as e:
             logging.error(f"Error updating saved search with id {search_id}: {e}")
+
+    def update_positive_words(self, search_id, positive_words):
+        stmt = "update saved_searches set positive_words = ? where id = ?"
+        try:
+            self.__conn.execute(stmt, (positive_words, search_id))
+            self.__conn.commit()
+        except Exception as e:
+            logging.error(f"Error updating positive words for saved search with id {search_id}: {e}")
+
+    def update_negative_words(self, search_id, negative_words):
+        stmt = "update saved_searches set negative_words = ? where id = ?"
+        try:
+            self.__conn.execute(stmt, (negative_words, search_id))
+            self.__conn.commit()
+        except Exception as e:
+            logging.error(f"Error updating negative words for saved search with id {search_id}: {e}")
 
     def update_saved_item_notes(self, item_id, notes):
         stmt = "update saved_items set notes = ? where item_id = ?"
@@ -152,6 +201,25 @@ class DBHelper:
             self.__conn.commit()
         except Exception as e:
             logging.error(f"Error updating notes for saved item {item_id}: {e}")
+
+    def get_search_results(self, search_id, page=1, per_page=10):
+        logging.info(f"Getting search results for search_id: {search_id}, page: {page}, per_page: {per_page}")
+        offset = (page - 1) * per_page
+        results = {'items': [], 'total': 0, 'pages': 0}
+        try:
+            # Get total count
+            count_stmt = "select count(*) from search_results where search_id = ?"
+            total = self.__conn.execute(count_stmt, (search_id,)).fetchone()[0]
+            results['total'] = total
+            results['pages'] = (total + per_page - 1) // per_page
+
+            # Get paginated items
+            stmt = "select item_json, skipped from search_results where search_id = ? order by rowid desc limit ? offset ?"
+            for row in self.__conn.execute(stmt, (search_id, per_page, offset)):
+                results['items'].append({'item_json': row[0], 'skipped': row[1]})
+        except Exception as e:
+            logging.error(f"Error getting search results for search {search_id}: {e}")
+        return results
 
     def delete_saved_item(self, item_id):
         stmt = "delete from saved_items where item_id = ?"

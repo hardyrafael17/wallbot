@@ -35,11 +35,13 @@ class Item:
 
 
 class SavedSearch:
-    def __init__(self, id, url, period=5, pages=2):
+    def __init__(self, id, url, period=5, pages=2, positive_words="", negative_words=""):
         self.id = id
         self.url = url
         self.period = period
         self.pages = pages
+        self.positive_words = positive_words
+        self.negative_words = negative_words
 
 
 class SearchResult:

@@ -10,16 +10,35 @@ from src.wallbot.config.settings import TELEGRAM_CHAT_ID
 # In-memory store for last run timestamps
 last_run_timestamps = {}
 
+def _item_matches_filters(item, search) -> bool:
+    """Checks if an item's title or description matches the search filters."""
+    positive_words = [word.strip() for word in search.positive_words.split(',') if word.strip()]
+    negative_words = [word.strip() for word in search.negative_words.split(',') if word.strip()]
+    
+    item_text = (item.get('title', '') + ' ' + item.get('description', '')).lower()
+
+    # If there are positive words, at least one must be present.
+    if positive_words and not any(word.lower() in item_text for word in positive_words):
+        logging.debug(f"Item {item.get('id')} rejected: missing positive words.")
+        return False
+
+    # If there are negative words, none should be present.
+    if negative_words and any(word.lower() in item_text for word in negative_words):
+        logging.debug(f"Item {item.get('id')} rejected: contains negative words.")
+        return False
+
+    return True
+
+
 async def check_saved_searches():
     logging.info("Starting saved searches monitor...")
-    db_helper = DBHelper()
-    db_helper.setup()
     wallapop_client = WallapopClient()
 
     while True:
         logging.info("Checking saved searches...")
+        db_helper = DBHelper()  # Create a new connection for this cycle
         saved_searches = db_helper.get_all_saved_searches()
-
+        
         for search in saved_searches:
             current_time = time.time()
             last_run = last_run_timestamps.get(search.id, 0)
@@ -66,11 +85,22 @@ async def check_saved_searches():
 
                     if new_items:
                         search_title = query_params.get('keywords', ['no keywords'])[0]
-                        await format_and_send_message(TELEGRAM_CHAT_ID, search_title, new_items)
+                        
+                        # Filter items and send notifications
+                        items_to_notify = []
+                        for item in new_items:
+                            skipped = not _item_matches_filters(item, search)
+                            db_helper.add_search_result(search.id, item.get("id"), json.dumps(item), skipped)
+                            if not skipped:
+                                items_to_notify.append(item)
+
+                        if items_to_notify:
+                            await format_and_send_message(TELEGRAM_CHAT_ID, search_title, items_to_notify, search)
 
                 except Exception as e:
                     logging.error(f"Error processing search {search.id}: {e}")
                 
                 last_run_timestamps[search.id] = current_time
 
+        del db_helper # Explicitly close the connection
         await asyncio.sleep(300)

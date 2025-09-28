@@ -12,6 +12,18 @@
         h1, .h1 {
             font-size: 1.5rem;
         }
+        .accordion-button {
+            font-size: 0.8rem;
+        }
+        .accordion-body {
+            padding: 0.5rem;
+        }
+        .table-sm {
+            font-size: 0.7rem;
+        }
+        .table-sm th, .table-sm td {
+            padding: 0.25rem;
+        }
     </style>
 </head>
 <body>
@@ -54,37 +66,37 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>URL</th>
-                    <th>Period (min)</th>
-                    <th>Pages</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for search in searches %}
-                <tr>
-                    <td><a href="{{ url_for('manual_search', request_url=search.url) }}">{{ search.url }}</a></td>
-                    <td>{{ search.period }}</td>
-                    <td>{{ search.pages }}</td>
-                    <td>
-                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal" data-search-id="{{ search.id }}" data-search-url="{{ search.url }}" data-search-period="{{ search.period }}" data-search-pages="{{ search.pages }}">
+
+        <div class="list-group">
+            {% for search in searches %}
+            <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">
+                        <a class="accordion-button collapsed" data-bs-toggle="collapse" href="#collapse-{{ search.id }}" role="button" aria-expanded="false" aria-controls="collapse-{{ search.id }}">
+                            <span class="text-truncate" style="max-width: 80%;">{{ search.url }}</span>
+                        </a>
+                    </h5>
+                    <div>
+                        <button type="button" class="btn btn-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#editModal" data-search-id="{{ search.id }}" data-search-url="{{ search.url }}" data-search-period="{{ search.period }}" data-search-pages="{{ search.pages }}" data-search-positive-words="{{ search.positive_words }}" data-search-negative-words="{{ search.negative_words }}">
                             Edit
                         </button>
-                        <form action="{{ url_for('delete_saved_search', search_id=search.id) }}" method="post" style="display: inline;">
+                        <form action="{{ url_for('delete_saved_search', search_id=search.id) }}" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this search?');">
                             <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                         </form>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="4">No saved searches yet.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    </div>
+                </div>
+                <div class="collapse" id="collapse-{{ search.id }}" data-search-id="{{ search.id }}">
+                    <div class="accordion-body">
+                        <div class="text-center">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
 
         <!-- Edit Modal -->
         <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
@@ -109,6 +121,14 @@
                                 <label for="editSearchPages" class="form-label">Pages</label>
                                 <input type="number" class="form-control" id="editSearchPages" name="pages">
                             </div>
+                            <div class="mb-3">
+                                <label for="editPositiveWords" class="form-label">Positive Words</label>
+                                <input type="text" class="form-control" id="editPositiveWords" name="positive_words">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editNegativeWords" class="form-label">Negative Words</label>
+                                <input type="text" class="form-control" id="editNegativeWords" name="negative_words">
+                            </div>
                         </form>
                     </div>
                     <div class="modal-footer">
@@ -130,6 +150,8 @@
             var searchUrl = button.getAttribute('data-search-url');
             var searchPeriod = button.getAttribute('data-search-period');
             var searchPages = button.getAttribute('data-search-pages');
+            var positiveWords = button.getAttribute('data-search-positive-words');
+            var negativeWords = button.getAttribute('data-search-negative-words');
 
             // Update the modal's content.
             var modalTitle = editModal.querySelector('.modal-title');
@@ -137,6 +159,8 @@
             var searchUrlInput = editModal.querySelector('#editSearchUrl');
             var searchPeriodInput = editModal.querySelector('#editSearchPeriod');
             var searchPagesInput = editModal.querySelector('#editSearchPages');
+            var positiveWordsInput = editModal.querySelector('#editPositiveWords');
+            var negativeWordsInput = editModal.querySelector('#editNegativeWords');
             var editForm = editModal.querySelector('#editForm');
 
             modalTitle.textContent = 'Edit Saved Search #' + searchId;
@@ -144,8 +168,133 @@
             searchUrlInput.value = searchUrl;
             searchPeriodInput.value = searchPeriod;
             searchPagesInput.value = searchPages;
+            positiveWordsInput.value = positiveWords;
+            negativeWordsInput.value = negativeWords;
             editForm.action = '/api/saved_searches/update/' + searchId;
         });
+
+        document.querySelectorAll('.accordion-button').forEach(button => {
+            button.addEventListener('click', event => {
+                const collapseId = button.getAttribute('href');
+                const collapseElement = document.querySelector(collapseId);
+                const body = collapseElement.querySelector('.accordion-body');
+                const searchId = collapseElement.dataset.searchId;
+                
+                // Only load data if it hasn't been loaded yet (check for spinner)
+                if (body.querySelector('.spinner-border')) {
+                    fetchResults(searchId, 1, 10);
+                }
+            });
+        });
+
+        function fetchResults(searchId, page, perPage) {
+            const body = document.getElementById(`collapse-${searchId}`).querySelector('.accordion-body');
+            body.innerHTML = `<div class="text-center"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div></div>`;
+
+            fetch(`/api/saved_searches/${searchId}/results?page=${page}&per_page=${perPage}`)
+                .then(response => response.json())
+                .then(data => {
+                    renderResults(searchId, data, page, perPage);
+                })
+                .catch(error => {
+                    body.innerHTML = `<div class="alert alert-danger">Error loading results.</div>`;
+                    console.error('Error:', error);
+                });
+        }
+
+        function renderResults(searchId, data, currentPage, perPage) {
+            const body = document.getElementById(`collapse-${searchId}`).querySelector('.accordion-body');
+            if (!data.items || data.items.length === 0) {
+                body.innerHTML = 'No items found for this search yet.';
+                return;
+            }
+
+            let tableHtml = `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <small>Total items: ${data.total}</small>
+                    <div>
+                        <label for="per-page-${searchId}" class="form-label form-label-sm d-inline-block me-1"><small>Per Page:</small></label>
+                        <select id="per-page-${searchId}" class="form-select form-select-sm d-inline-block" style="width: auto;">
+                            <option value="10" ${perPage == 10 ? 'selected' : ''}>10</option>
+                            <option value="25" ${perPage == 25 ? 'selected' : ''}>25</option>
+                            <option value="50" ${perPage == 50 ? 'selected' : ''}>50</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Title</th>
+                                <th>Price</th>
+                                <th>Description</th>
+                                <th>Location</th>
+                                <th>Created At</th>
+                                <th>Modified At</th>
+                                <th>Link</th>
+                                <th>Skipped</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            data.items.forEach(result => {
+                const item = JSON.parse(result.item_json);
+                const skipped = result.skipped;
+                const title = item.title || 'No Title';
+                const price = item.price ? `${item.price.amount} ${item.price.currency}` : 'N/A';
+                const url = `https://es.wallapop.com/item/${item.web_slug}`;
+                const imageUrl = item.images && item.images.length > 0 ? item.images[0].urls.small : '';
+                const description = item.description ? item.description.substring(0, 100) + '...' : '';
+                const location = item.location ? item.location.city : '';
+                const createdAt = item.created_at ? new Date(item.created_at).toLocaleString() : '';
+                const modifiedAt = item.modified_date ? new Date(item.modified_date * 1000).toLocaleString() : '';
+                const skippedIcon = skipped ? '<span class="text-danger">&#10060;</span>' : '<span class="text-success">&#9989;</span>';
+
+                tableHtml += `
+                    <tr>
+                        <td><img src="${imageUrl}" alt="${title}" width="50"></td>
+                        <td>${title}</td>
+                        <td>${price}</td>
+                        <td>${description}</td>
+                        <td>${location}</td>
+                        <td>${createdAt}</td>
+                        <td>${modifiedAt}</td>
+                        <td><a href="${url}" target="_blank">View</a></td>
+                        <td>${skippedIcon}</td>
+                    </tr>
+                `;
+            });
+
+            tableHtml += '</tbody></table></div>';
+
+            // Pagination
+            if (data.pages > 1) {
+                tableHtml += '<nav><ul class="pagination pagination-sm justify-content-center">';
+                for (let i = 1; i <= data.pages; i++) {
+                    tableHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+                }
+                tableHtml += '</ul></nav>';
+            }
+
+            body.innerHTML = tableHtml;
+
+            // Add event listeners for pagination and per-page select
+            body.querySelectorAll('.page-link').forEach(link => {
+                link.addEventListener('click', e => {
+                    e.preventDefault();
+                    const newPage = parseInt(e.target.dataset.page);
+                    const currentPerPage = parseInt(body.querySelector('select').value);
+                    fetchResults(searchId, newPage, currentPerPage);
+                });
+            });
+
+            body.querySelector('select').addEventListener('change', e => {
+                const newPerPage = parseInt(e.target.value);
+                fetchResults(searchId, 1, newPerPage);
+            });
+        }
     </script>
 </body>
 </html>
