@@ -7,7 +7,6 @@ from typing import List
 
 from src.wallbot.config.constants import SEARCH_INTERVAL
 from src.wallbot.database.models import ChatSearch
-from src.wallbot.telegram.notifications import notel
 from src.wallbot.wallapop.api_client import WallapopClient
 
 
@@ -94,7 +93,7 @@ class WallapopMonitor:
     def _process_new_item(self, item_id, chat_id, title, price, web_slug, user_id):
         """Procesa un item nuevo encontrado"""
         self.db.add_item(item_id, chat_id, title, price, web_slug, user_id)
-        notel(chat_id, price, title, web_slug)
+        # notel(chat_id, price, title, web_slug)
         # logging.info(
         #     'New: id=%s, price=%s, title=%s',
         #     str(item_id),
@@ -118,7 +117,7 @@ class WallapopMonitor:
             self.db.update_item(item_id, str(new_price), price_history)
 
             # Notificar cambio de precio
-            notel(chat_id, new_price, title, web_slug, ' < ' + price_history)
+            # notel(chat_id, new_price, title, web_slug, ' < ' + price_history)
 
             logging.info(
                 'Baja: id=%s, price=%s, title=%s',

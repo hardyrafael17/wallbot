@@ -4,7 +4,7 @@ import json
 import asyncio
 from src.wallbot.database.db_helper import DBHelper
 from src.wallbot.wallapop.api_client import WallapopClient
-from src.wallbot.telegram.notifications import notify_grouped_search_results
+from src.wallbot.telegram.notifications import format_and_send_message
 from src.wallbot.config.settings import TELEGRAM_CHAT_ID
 
 # In-memory store for last run timestamps
@@ -66,13 +66,7 @@ async def check_saved_searches():
 
                     if new_items:
                         search_title = query_params.get('keywords', ['no keywords'])[0]
-                        message = f"**Search:** {search_title}\n"
-                        for i, item in enumerate(new_items, 1):
-                            item_title = item.get('title', 'No title')
-                            item_price = item.get('price', {'amount': 'N/A'}).get('amount', 'N/A')
-                            item_url = item.get('web_slug', 'No link')
-                            message += f"{i}- **Desc.:** {item_title} - **Precio:** {item_price}\n    https://es.wallapop.com/item/{item_url}\n"
-                        await notify_grouped_search_results(TELEGRAM_CHAT_ID, message)
+                        await format_and_send_message(TELEGRAM_CHAT_ID, search_title, new_items)
 
                 except Exception as e:
                     logging.error(f"Error processing search {search.id}: {e}")

@@ -13,32 +13,21 @@ async def send_telegram_message(chat_id, text, parse_mode=None):
     except Exception as e:
         logging.error(f"Error sending Telegram message: {e}")
 
-async def notel(chat_id, price, title, url_item, obs=None):
-    # https://apps.timwhitlock.info/emoji/tables/unicode
-    if obs is not None:
-        icon = ICON_EXCLAMATION
-    else:
-        icon = ICON_DIRECT_HIT
+async def format_and_send_message(chat_id, search_title, new_items):
+    search_title = escape_markdown(search_title, version=2)
+    message = f"**Busqueda:** {search_title}\n"
+    for i, item in enumerate(new_items, 1):
+        item_title = escape_markdown(item.get('title', 'No title'), version=2)
+        item_price = escape_markdown(str(item.get('price', {'amount': 'N/A'}).get('amount', 'N/A')), version=2)
+        item_url = item.get('web_slug', 'No link')
+        message += f"{i}\\. [{item_title}](https://es.wallapop.com/item/{item_url}) \\- **Precio:** {item_price}\n"
     
-    title = escape_markdown(title, version=2)
-    price_str = escape_markdown(locale.currency(price, grouping=True), version=2)
-
-    text = f"{icon} *{title}*\n"
-    if obs is not None:
-        text += f"{ICON_COLLISION} "
-    text += f"`{price_str}`"
-    if obs is not None:
-        obs_text = escape_markdown(obs, version=2)
-        text += f" {obs_text} {ICON_COLLISION}"
-    
-    text += f"\n[View on Wallapop](https://es.wallapop.com/item/{url_item})"
-    
-    await send_telegram_message(chat_id, text, parse_mode='MarkdownV2')
+    await notify_grouped_search_results(chat_id, message)
 
 async def notify_grouped_search_results(chat_id, message):
     max_length = 4096
     if len(message) <= max_length:
-        await send_telegram_message(chat_id, message)
+        await send_telegram_message(chat_id, message, parse_mode='MarkdownV2')
         return
 
     lines = message.split('\n')
@@ -49,7 +38,7 @@ async def notify_grouped_search_results(chat_id, message):
             line2 = lines[i+1]
             
             if len(part) + len(line1) + len(line2) + 2 > max_length:
-                await send_telegram_message(chat_id, part)
+                await send_telegram_message(chat_id, part, parse_mode='MarkdownV2')
                 part = ""
 
             if part:
@@ -57,7 +46,7 @@ async def notify_grouped_search_results(chat_id, message):
             part += f"{line1}\n{line2}"
         else:
             if len(part) + len(lines[i]) + 1 > max_length:
-                await send_telegram_message(chat_id, part)
+                await send_telegram_message(chat_id, part, parse_mode='MarkdownV2')
                 part = ""
             
             if part:
@@ -65,4 +54,4 @@ async def notify_grouped_search_results(chat_id, message):
             part += lines[i]
 
     if part:
-        await send_telegram_message(chat_id, part)
+        await send_telegram_message(chat_id, part, parse_mode='MarkdownV2')
