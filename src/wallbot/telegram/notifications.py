@@ -14,24 +14,12 @@ async def send_telegram_message(chat_id, text, parse_mode=None):
         logging.error(f"Error sending Telegram message: {e}")
 
 async def format_and_send_message(chat_id, search_title, new_items, search):
-    # Filter items based on negative keywords before sending notifications.
-    negative_words = [word.strip().lower() for word in search.negative_words.split(',') if word.strip()]
-    
-    if negative_words:
-        filtered_items = []
-        for item in new_items:
-            item_text = (item.get('title', '') + ' ' + item.get('description', '')).lower()
-            if not any(word in item_text for word in negative_words):
-                filtered_items.append(item)
-    else:
-        filtered_items = new_items
-
-    if not filtered_items:
+    if not new_items:
         return # No items to notify after filtering
 
     search_title = escape_markdown(search_title, version=2)
     message = f"**Busqueda:** {search_title}\n"
-    for i, item in enumerate(filtered_items, 1):
+    for i, item in enumerate(new_items, 1):
         item_title = escape_markdown(item.get('title', 'No title'), version=2)
         item_price = escape_markdown(str(item.get('price', {'amount': 'N/A'}).get('amount', 'N/A')), version=2)
         item_url = item.get('web_slug', 'No link')

@@ -83,9 +83,15 @@ class DBHelper:
                                  "(search_id integer, " \
                                  "item_id text, " \
                                  "item_json text, " \
-                                 "skipped boolean default false, " \
+                                 "notified boolean default false, " \
                                  "primary key (search_id, item_id))"
         self.__conn.execute(tblstmtsearchresults)
+
+        # Add 'notified' column to 'search_results' if it doesn't exist
+        try:
+            self.__conn.execute("alter table search_results add column notified boolean default false")
+        except sqlite3.OperationalError:
+            pass # Column already exists
 
         # Add 'skipped' column to 'search_results' if it doesn't exist
         try:
@@ -141,10 +147,10 @@ class DBHelper:
             logging.error(f"Error getting saved search by id: {e}")
         return None
 
-    def add_search_result(self, search_id, item_id, item_json, skipped=False):
-        stmt = "insert into search_results (search_id, item_id, item_json, skipped) values (?, ?, ?, ?)"
+    def add_search_result(self, search_id, item_id, item_json, notified=False):
+        stmt = "insert into search_results (search_id, item_id, item_json, notified) values (?, ?, ?, ?)"
         try:
-            self.__conn.execute(stmt, (search_id, item_id, item_json, skipped))
+            self.__conn.execute(stmt, (search_id, item_id, item_json, notified))
             self.__conn.commit()
         except sqlite3.IntegrityError:
             logging.warning(f"Item {item_id} already exists for search {search_id}")
@@ -214,9 +220,9 @@ class DBHelper:
             results['pages'] = (total + per_page - 1) // per_page
 
             # Get paginated items
-            stmt = "select item_json, skipped from search_results where search_id = ? order by rowid desc limit ? offset ?"
+            stmt = "select item_json, notified from search_results where search_id = ? order by rowid desc limit ? offset ?"
             for row in self.__conn.execute(stmt, (search_id, per_page, offset)):
-                results['items'].append({'item_json': row[0], 'skipped': row[1]})
+                results['items'].append({'item_json': row[0], 'notified': row[1]})
         except Exception as e:
             logging.error(f"Error getting search results for search {search_id}: {e}")
         return results

@@ -17,6 +17,11 @@ def _item_matches_filters(item, search) -> bool:
     
     item_text = (item.get('title', '') + ' ' + item.get('description', '')).lower()
 
+    # Print number of new items
+    logging.debug(f"Number of items {len(item)}")
+    logging.debug(f"Number of items {len(item)}")
+    logging.debug(f"Number of items {len(item)}")
+    
     # If there are positive words, at least one must be present.
     if positive_words and not any(word.lower() in item_text for word in positive_words):
         logging.debug(f"Item {item.get('id')} rejected: missing positive words.")
@@ -84,18 +89,34 @@ async def check_saved_searches():
                                 next_page = None
 
                     if new_items:
+                        logging.debug(f" -------->>>>>>{len(new_items)}")
+                        logging.debug(f" -------->>>>>>{len(new_items)}")
+                        logging.debug(f" -------->>>>>>{len(new_items)}")
+                        logging.debug(f" -------->>>>>>{len(new_items)}")
                         search_title = query_params.get('keywords', ['no keywords'])[0]
-                        
-                        # Filter items and send notifications
                         items_to_notify = []
                         for item in new_items:
-                            skipped = not _item_matches_filters(item, search)
-                            db_helper.add_search_result(search.id, item.get("id"), json.dumps(item), skipped)
-                            if not skipped:
-                                items_to_notify.append(item)
+                            item_id = item.get("id")
+                            if not db_helper.search_result_exists(search.id, item_id):
+                                logging.info(f"Processing new item {item_id} for search {search.id}")
+                                has_negative_words = any(word.lower() in (item.get('title', '') + ' ' + item.get('description', '')).lower() for word in search.negative_words.split(',') if word.strip())
+                                
+                                if has_negative_words:
+                                    logging.info(f"Item {item_id} has negative words. Marking as not notified.")
+                                    db_helper.add_search_result(search.id, item_id, json.dumps(item), notified=False)
+                                else:
+                                    logging.info(f"Item {item_id} has no negative words. Marking as notified.")
+                                    db_helper.add_search_result(search.id, item_id, json.dumps(item), notified=True)
+                                    items_to_notify.append(item)
+                            else:
+                                logging.info(f"Item {item_id} already exists for search {search.id}. Skipping.")
 
                         if items_to_notify:
+                            logging.info(f"Sending notification for {len(items_to_notify)} items for search {search.id}")
                             await format_and_send_message(TELEGRAM_CHAT_ID, search_title, items_to_notify, search)
+                        else:
+                            logging.info(f"No new items to notify for search {search.id}")
+
 
                 except Exception as e:
                     logging.error(f"Error processing search {search.id}: {e}")

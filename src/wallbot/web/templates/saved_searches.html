@@ -233,7 +233,7 @@
                                 <th>Created At</th>
                                 <th>Modified At</th>
                                 <th>Link</th>
-                                <th>Skipped</th>
+                                <th>Notified</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -241,7 +241,7 @@
 
             data.items.forEach(result => {
                 const item = JSON.parse(result.item_json);
-                const skipped = result.skipped;
+                const notified = result.notified;
                 const title = item.title || 'No Title';
                 const price = item.price ? `${item.price.amount} ${item.price.currency}` : 'N/A';
                 const url = `https://es.wallapop.com/item/${item.web_slug}`;
@@ -250,7 +250,7 @@
                 const location = item.location ? item.location.city : '';
                 const createdAt = item.created_at ? new Date(item.created_at).toLocaleString() : '';
                 const modifiedAt = item.modified_date ? new Date(item.modified_date * 1000).toLocaleString() : '';
-                const skippedIcon = skipped ? '<span class="text-danger">&#10060;</span>' : '<span class="text-success">&#9989;</span>';
+                const notifiedIcon = notified ? '<span class="text-success">&#9989;</span>' : '<span class="text-danger">&#10060;</span>';
 
                 tableHtml += `
                     <tr>
@@ -262,7 +262,7 @@
                         <td>${createdAt}</td>
                         <td>${modifiedAt}</td>
                         <td><a href="${url}" target="_blank">View</a></td>
-                        <td>${skippedIcon}</td>
+                        <td>${notifiedIcon}</td>
                     </tr>
                 `;
             });
