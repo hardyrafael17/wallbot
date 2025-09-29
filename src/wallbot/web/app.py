@@ -109,6 +109,8 @@ def _parse_api_item(item_json):
         return None
 
 
+from urllib.parse import urlparse, parse_qs
+
 def create_web_app(db):
     """
     Creates and configures the Flask web application.
@@ -132,8 +134,17 @@ def create_web_app(db):
         except (KeyError, IndexError, TypeError):
             return None
 
+    def format_search_title_filter(url):
+        try:
+            query_params = parse_qs(urlparse(url).query)
+            keywords = query_params.get('keywords', ['No Title'])[0]
+            return keywords.replace('+', ' ').title()
+        except:
+            return "No Title"
+
     app.jinja_env.filters['fromjson'] = fromjson_filter
     app.jinja_env.filters['attr'] = attr_filter
+    app.jinja_env.filters['format_search_title'] = format_search_title_filter
 
     # A secret key is required for flashing messages
     app.secret_key = 'supersecretkey'

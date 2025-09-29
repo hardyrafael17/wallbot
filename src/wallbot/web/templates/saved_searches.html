@@ -1,215 +1,230 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saved Searches</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-size: 0.75rem;
-        }
-        h1, .h1 {
-            font-size: 1.5rem;
-        }
-        .accordion-button {
-            font-size: 0.8rem;
-        }
-        .accordion-body {
-            padding: 0.5rem;
-        }
-        .table-sm {
-            font-size: 0.7rem;
-        }
-        .table-sm th, .table-sm td {
-            padding: 0.25rem;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saved Searches</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-size: 0.75rem;
+    }
+
+    h1,
+    .h1 {
+      font-size: 1.5rem;
+    }
+
+    .accordion-button {
+      font-size: 0.8rem;
+    }
+
+    .accordion-body {
+      padding: 0.5rem;
+    }
+
+    .table-sm {
+      font-size: 0.7rem;
+    }
+
+    .table-sm th,
+    .table-sm td {
+      padding: 0.25rem;
+    }
+  </style>
 </head>
+
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Wallbot</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/searches">Manage Searches</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/manual-search">Manual Search</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/saved_searches">Saved Searches</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/saved_items_list">Saved Items</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="fetch('/restart', { method: 'POST' })">Restart</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    <div class="container mt-4">
-        <h1 class="mb-4">Saved Searches</h1>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <div class="list-group">
-            {% for search in searches %}
-            <div class="list-group-item">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">
-                        <a class="accordion-button collapsed" data-bs-toggle="collapse" href="#collapse-{{ search.id }}" role="button" aria-expanded="false" aria-controls="collapse-{{ search.id }}">
-                            <span class="text-truncate" style="max-width: 80%;">{{ search.url }}</span>
-                        </a>
-                    </h5>
-                    <div>
-                        <button type="button" class="btn btn-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#editModal" data-search-id="{{ search.id }}" data-search-url="{{ search.url }}" data-search-period="{{ search.period }}" data-search-pages="{{ search.pages }}" data-search-positive-words="{{ search.positive_words }}" data-search-negative-words="{{ search.negative_words }}">
-                            Edit
-                        </button>
-                        <form action="{{ url_for('delete_saved_search', search_id=search.id) }}" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this search?');">
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                        </form>
-                    </div>
-                </div>
-                <div class="collapse" id="collapse-{{ search.id }}" data-search-id="{{ search.id }}">
-                    <div class="accordion-body">
-                        <div class="text-center">
-                            <div class="spinner-border spinner-border-sm" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <!-- Edit Modal -->
-        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editModalLabel">Edit Saved Search</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="editForm" method="post">
-                            <input type="hidden" id="editSearchId" name="search_id">
-                            <div class="mb-3">
-                                <label for="editSearchUrl" class="form-label">URL</label>
-                                <input type="text" class="form-control" id="editSearchUrl" name="url">
-                            </div>
-                            <div class="mb-3">
-                                <label for="editSearchPeriod" class="form-label">Period (min)</label>
-                                <input type="number" class="form-control" id="editSearchPeriod" name="period">
-                            </div>
-                            <div class="mb-3">
-                                <label for="editSearchPages" class="form-label">Pages</label>
-                                <input type="number" class="form-control" id="editSearchPages" name="pages">
-                            </div>
-                            <div class="mb-3">
-                                <label for="editPositiveWords" class="form-label">Positive Words</label>
-                                <input type="text" class="form-control" id="editPositiveWords" name="positive_words">
-                            </div>
-                            <div class="mb-3">
-                                <label for="editNegativeWords" class="form-label">Negative Words</label>
-                                <input type="text" class="form-control" id="editNegativeWords" name="negative_words">
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" form="editForm" class="btn btn-primary">Save changes</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Wallbot</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="/searches">Manage Searches</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/manual-search">Manual Search</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/saved_searches">Saved Searches</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/saved_items_list">Saved Items</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="fetch('/restart', { method: 'POST' })">Restart</a>
+          </li>
+        </ul>
+      </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        var editModal = document.getElementById('editModal');
-        editModal.addEventListener('show.bs.modal', function (event) {
-            // Button that triggered the modal
-            var button = event.relatedTarget;
-            // Extract info from data-bs-* attributes
-            var searchId = button.getAttribute('data-search-id');
-            var searchUrl = button.getAttribute('data-search-url');
-            var searchPeriod = button.getAttribute('data-search-period');
-            var searchPages = button.getAttribute('data-search-pages');
-            var positiveWords = button.getAttribute('data-search-positive-words');
-            var negativeWords = button.getAttribute('data-search-negative-words');
+  </nav>
+  <div class="container mt-4">
+    <h1 class="mb-4">Saved Searches</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
 
-            // Update the modal's content.
-            var modalTitle = editModal.querySelector('.modal-title');
-            var searchIdInput = editModal.querySelector('#editSearchId');
-            var searchUrlInput = editModal.querySelector('#editSearchUrl');
-            var searchPeriodInput = editModal.querySelector('#editSearchPeriod');
-            var searchPagesInput = editModal.querySelector('#editSearchPages');
-            var positiveWordsInput = editModal.querySelector('#editPositiveWords');
-            var negativeWordsInput = editModal.querySelector('#editNegativeWords');
-            var editForm = editModal.querySelector('#editForm');
+    <div class="list-group">
+      {% for search in searches %}
+      <div class="list-group-item">
+        <div class="d-flex justify-content-between">
+          <h5 class="mb-1">
+            <a class="accordion-button collapsed" data-bs-toggle="collapse" href="#collapse-{{ search.id }}"
+              role="button" aria-expanded="false" aria-controls="collapse-{{ search.id }}">
+                                          <span>#{{ search.id }} - {{ search.url | format_search_title }}</span>            </a>
+          </h5>
+          <div>
+            <button type="button" class="btn btn-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#editModal"
+              data-search-id="{{ search.id }}" data-search-url="{{ search.url }}"
+              data-search-period="{{ search.period }}" data-search-pages="{{ search.pages }}"
+              data-search-positive-words="{{ search.positive_words }}"
+              data-search-negative-words="{{ search.negative_words }}">
+              Edit
+            </button>
+            <form action="{{ url_for('delete_saved_search', search_id=search.id) }}" method="post"
+              style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this search?');">
+              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+          </div>
+        </div>
+        <div class="collapse" id="collapse-{{ search.id }}" data-search-id="{{ search.id }}">
+          <div class="accordion-body">
+            <div class="text-center">
+              <div class="spinner-border spinner-border-sm" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
 
-            modalTitle.textContent = 'Edit Saved Search #' + searchId;
-            searchIdInput.value = searchId;
-            searchUrlInput.value = searchUrl;
-            searchPeriodInput.value = searchPeriod;
-            searchPagesInput.value = searchPages;
-            positiveWordsInput.value = positiveWords;
-            negativeWordsInput.value = negativeWords;
-            editForm.action = '/api/saved_searches/update/' + searchId;
-        });
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editModalLabel">Edit Saved Search</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="editForm" method="post">
+              <input type="hidden" id="editSearchId" name="search_id">
+              <div class="mb-3">
+                <label for="editSearchUrl" class="form-label">URL</label>
+                <input type="text" class="form-control" id="editSearchUrl" name="url">
+              </div>
+              <div class="mb-3">
+                <label for="editSearchPeriod" class="form-label">Period (min)</label>
+                <input type="number" class="form-control" id="editSearchPeriod" name="period">
+              </div>
+              <div class="mb-3">
+                <label for="editSearchPages" class="form-label">Pages</label>
+                <input type="number" class="form-control" id="editSearchPages" name="pages">
+              </div>
+              <div class="mb-3">
+                <label for="editPositiveWords" class="form-label">Positive Words</label>
+                <input type="text" class="form-control" id="editPositiveWords" name="positive_words">
+              </div>
+              <div class="mb-3">
+                <label for="editNegativeWords" class="form-label">Negative Words</label>
+                <input type="text" class="form-control" id="editNegativeWords" name="negative_words">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" form="editForm" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    var editModal = document.getElementById('editModal');
+    editModal.addEventListener('show.bs.modal', function (event) {
+      // Button that triggered the modal
+      var button = event.relatedTarget;
+      // Extract info from data-bs-* attributes
+      var searchId = button.getAttribute('data-search-id');
+      var searchUrl = button.getAttribute('data-search-url');
+      var searchPeriod = button.getAttribute('data-search-period');
+      var searchPages = button.getAttribute('data-search-pages');
+      var positiveWords = button.getAttribute('data-search-positive-words');
+      var negativeWords = button.getAttribute('data-search-negative-words');
 
-        document.querySelectorAll('.accordion-button').forEach(button => {
-            button.addEventListener('click', event => {
-                const collapseId = button.getAttribute('href');
-                const collapseElement = document.querySelector(collapseId);
-                const body = collapseElement.querySelector('.accordion-body');
-                const searchId = collapseElement.dataset.searchId;
-                
-                // Only load data if it hasn't been loaded yet (check for spinner)
-                if (body.querySelector('.spinner-border')) {
-                    fetchResults(searchId, 1, 10);
-                }
-            });
-        });
+      // Update the modal's content.
+      var modalTitle = editModal.querySelector('.modal-title');
+      var searchIdInput = editModal.querySelector('#editSearchId');
+      var searchUrlInput = editModal.querySelector('#editSearchUrl');
+      var searchPeriodInput = editModal.querySelector('#editSearchPeriod');
+      var searchPagesInput = editModal.querySelector('#editSearchPages');
+      var positiveWordsInput = editModal.querySelector('#editPositiveWords');
+      var negativeWordsInput = editModal.querySelector('#editNegativeWords');
+      var editForm = editModal.querySelector('#editForm');
 
-        function fetchResults(searchId, page, perPage) {
-            const body = document.getElementById(`collapse-${searchId}`).querySelector('.accordion-body');
-            body.innerHTML = `<div class="text-center"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div></div>`;
+      modalTitle.textContent = 'Edit Saved Search #' + searchId;
+      searchIdInput.value = searchId;
+      searchUrlInput.value = searchUrl;
+      searchPeriodInput.value = searchPeriod;
+      searchPagesInput.value = searchPages;
+      positiveWordsInput.value = positiveWords;
+      negativeWordsInput.value = negativeWords;
+      editForm.action = '/api/saved_searches/update/' + searchId;
+    });
 
-            fetch(`/api/saved_searches/${searchId}/results?page=${page}&per_page=${perPage}`)
-                .then(response => response.json())
-                .then(data => {
-                    renderResults(searchId, data, page, perPage);
-                })
-                .catch(error => {
-                    body.innerHTML = `<div class="alert alert-danger">Error loading results.</div>`;
-                    console.error('Error:', error);
-                });
+    document.querySelectorAll('.accordion-button').forEach(button => {
+      button.addEventListener('click', event => {
+        const collapseId = button.getAttribute('href');
+        const collapseElement = document.querySelector(collapseId);
+        const body = collapseElement.querySelector('.accordion-body');
+        const searchId = collapseElement.dataset.searchId;
+
+        // Only load data if it hasn't been loaded yet (check for spinner)
+        if (body.querySelector('.spinner-border')) {
+          fetchResults(searchId, 1, 10);
         }
+      });
+    });
 
-        function renderResults(searchId, data, currentPage, perPage) {
-            const body = document.getElementById(`collapse-${searchId}`).querySelector('.accordion-body');
-            if (!data.items || data.items.length === 0) {
-                body.innerHTML = 'No items found for this search yet.';
-                return;
-            }
+    function fetchResults(searchId, page, perPage) {
+      const body = document.getElementById(`collapse-${searchId}`).querySelector('.accordion-body');
+      body.innerHTML = `<div class="text-center"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div></div>`;
 
-            let tableHtml = `
+      fetch(`/api/saved_searches/${searchId}/results?page=${page}&per_page=${perPage}`)
+        .then(response => response.json())
+        .then(data => {
+          renderResults(searchId, data, page, perPage);
+        })
+        .catch(error => {
+          body.innerHTML = `<div class="alert alert-danger">Error loading results.</div>`;
+          console.error('Error:', error);
+        });
+    }
+
+    function renderResults(searchId, data, currentPage, perPage) {
+      const body = document.getElementById(`collapse-${searchId}`).querySelector('.accordion-body');
+      if (!data.items || data.items.length === 0) {
+        body.innerHTML = 'No items found for this search yet.';
+        return;
+      }
+
+      let tableHtml = `
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <small>Total items: ${data.total}</small>
                     <div>
@@ -239,20 +254,20 @@
                         <tbody>
             `;
 
-            data.items.forEach(result => {
-                const item = JSON.parse(result.item_json);
-                const notified = result.notified;
-                const title = item.title || 'No Title';
-                const price = item.price ? `${item.price.amount} ${item.price.currency}` : 'N/A';
-                const url = `https://es.wallapop.com/item/${item.web_slug}`;
-                const imageUrl = item.images && item.images.length > 0 ? item.images[0].urls.small : '';
-                const description = item.description ? item.description.substring(0, 100) + '...' : '';
-                const location = item.location ? item.location.city : '';
-                const createdAt = item.created_at ? new Date(item.created_at).toLocaleString() : '';
-                const modifiedAt = item.modified_date ? new Date(item.modified_date * 1000).toLocaleString() : '';
-                const notifiedIcon = notified ? '<span class="text-success">&#9989;</span>' : '<span class="text-danger">&#10060;</span>';
+      data.items.forEach(result => {
+        const item = JSON.parse(result.item_json);
+        const notified = result.notified;
+        const title = item.title || 'No Title';
+        const price = item.price ? `${item.price.amount} ${item.price.currency}` : 'N/A';
+        const url = `https://es.wallapop.com/item/${item.web_slug}`;
+        const imageUrl = item.images && item.images.length > 0 ? item.images[0].urls.small : '';
+        const description = item.description ? item.description.substring(0, 100) + '...' : '';
+        const location = item.location ? item.location.city : '';
+        const createdAt = item.created_at ? new Date(item.created_at).toLocaleString() : '';
+        const modifiedAt = item.modified_date ? new Date(item.modified_date * 1000).toLocaleString() : '';
+        const notifiedIcon = notified ? '<span class="text-success">&#9989;</span>' : '<span class="text-danger">&#10060;</span>';
 
-                tableHtml += `
+        tableHtml += `
                     <tr>
                         <td><img src="${imageUrl}" alt="${title}" width="50"></td>
                         <td>${title}</td>
@@ -265,36 +280,37 @@
                         <td>${notifiedIcon}</td>
                     </tr>
                 `;
-            });
+      });
 
-            tableHtml += '</tbody></table></div>';
+      tableHtml += '</tbody></table></div>';
 
-            // Pagination
-            if (data.pages > 1) {
-                tableHtml += '<nav><ul class="pagination pagination-sm justify-content-center">';
-                for (let i = 1; i <= data.pages; i++) {
-                    tableHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
-                }
-                tableHtml += '</ul></nav>';
-            }
-
-            body.innerHTML = tableHtml;
-
-            // Add event listeners for pagination and per-page select
-            body.querySelectorAll('.page-link').forEach(link => {
-                link.addEventListener('click', e => {
-                    e.preventDefault();
-                    const newPage = parseInt(e.target.dataset.page);
-                    const currentPerPage = parseInt(body.querySelector('select').value);
-                    fetchResults(searchId, newPage, currentPerPage);
-                });
-            });
-
-            body.querySelector('select').addEventListener('change', e => {
-                const newPerPage = parseInt(e.target.value);
-                fetchResults(searchId, 1, newPerPage);
-            });
+      // Pagination
+      if (data.pages > 1) {
+        tableHtml += '<nav><ul class="pagination pagination-sm justify-content-center">';
+        for (let i = 1; i <= data.pages; i++) {
+          tableHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
         }
-    </script>
+        tableHtml += '</ul></nav>';
+      }
+
+      body.innerHTML = tableHtml;
+
+      // Add event listeners for pagination and per-page select
+      body.querySelectorAll('.page-link').forEach(link => {
+        link.addEventListener('click', e => {
+          e.preventDefault();
+          const newPage = parseInt(e.target.dataset.page);
+          const currentPerPage = parseInt(body.querySelector('select').value);
+          fetchResults(searchId, newPage, currentPerPage);
+        });
+      });
+
+      body.querySelector('select').addEventListener('change', e => {
+        const newPerPage = parseInt(e.target.value);
+        fetchResults(searchId, 1, newPerPage);
+      });
+    }
+  </script>
 </body>
+
 </html>
