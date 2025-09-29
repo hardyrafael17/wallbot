@@ -1,7 +1,6 @@
 __pycache__
 .idea/
 venv/
-db.sqlite
 *.log
 core_app.log
 *.tar
