@@ -109,6 +109,8 @@ def _parse_api_item(item_json):
         return None
 
 
+from urllib.parse import urlparse, parse_qs
+
 def create_web_app(db):
     """
     Creates and configures the Flask web application.
@@ -132,8 +134,17 @@ def create_web_app(db):
         except (KeyError, IndexError, TypeError):
             return None
 
+    def format_search_title_filter(url):
+        try:
+            query_params = parse_qs(urlparse(url).query)
+            keywords = query_params.get('keywords', ['No Title'])[0]
+            return keywords.replace('+', ' ').title()
+        except:
+            return "No Title"
+
     app.jinja_env.filters['fromjson'] = fromjson_filter
     app.jinja_env.filters['attr'] = attr_filter
+    app.jinja_env.filters['format_search_title'] = format_search_title_filter
 
     # A secret key is required for flashing messages
     app.secret_key = 'supersecretkey'
@@ -233,13 +244,78 @@ def create_web_app(db):
         url = request.form.get('url')
         period = request.form.get('period')
         pages = request.form.get('pages')
+        positive_words = request.form.get('positive_words')
+        negative_words = request.form.get('negative_words')
         try:
-            db.update_saved_search(search_id, url, period, pages)
+            db.update_saved_search(search_id, url, period, pages, positive_words, negative_words)
             flash(f"Saved search #{search_id} has been updated.", "success")
         except Exception as e:
             logging.error(f"Error updating saved search: {e}")
             flash("Error updating saved search.", "error")
         return redirect(url_for('saved_searches'))
+
+    @app.route('/api/saved_searches/add_word/<int:search_id>/<word_type>', methods=['POST'])
+    def add_word_to_search(search_id, word_type):
+        word = request.form.get('word')
+        if not word:
+            flash("Word cannot be empty.", "error")
+            return redirect(url_for('saved_searches'))
+
+        try:
+            search = db.get_saved_search_by_id(search_id)
+            if word_type == 'positive':
+                words = search.positive_words.split(',') if search.positive_words else []
+                if word not in words:
+                    words.append(word)
+                    db.update_positive_words(search_id, ",".join(words))
+                    flash(f"Added positive word '{word}' to search #{search_id}.", "success")
+                else:
+                    flash(f"Word '{word}' already in positive words.", "info")
+            elif word_type == 'negative':
+                words = search.negative_words.split(',') if search.negative_words else []
+                if word not in words:
+                    words.append(word)
+                    db.update_negative_words(search_id, ",".join(words))
+                    flash(f"Added negative word '{word}' to search #{search_id}.", "success")
+                else:
+                    flash(f"Word '{word}' already in negative words.", "info")
+        except Exception as e:
+            logging.error(f"Error adding word to search: {e}")
+            flash("Error adding word to search.", "error")
+        return redirect(url_for('saved_searches'))
+
+    @app.route('/api/saved_searches/delete_word/<int:search_id>/<word_type>/<word>', methods=['POST'])
+    def delete_word_from_search(search_id, word_type, word):
+        try:
+            search = db.get_saved_search_by_id(search_id)
+            if word_type == 'positive':
+                words = search.positive_words.split(',') if search.positive_words else []
+                if word in words:
+                    words.remove(word)
+                    db.update_positive_words(search_id, ",".join(words))
+                    flash(f"Removed positive word '{word}' from search #{search_id}.", "success")
+            elif word_type == 'negative':
+                words = search.negative_words.split(',') if search.negative_words else []
+                if word in words:
+                    words.remove(word)
+                    db.update_negative_words(search_id, ",".join(words))
+                    flash(f"Removed negative word '{word}' from search #{search_id}.", "success")
+        except Exception as e:
+            logging.error(f"Error deleting word from search: {e}")
+            flash("Error deleting word from search.", "error")
+        return redirect(url_for('saved_searches'))
+
+    @app.route('/api/saved_searches/<int:search_id>/results', methods=['GET'])
+    def get_saved_search_results(search_id):
+        """Gets paginated results for a saved search."""
+        try:
+            page = request.args.get('page', 1, type=int)
+            per_page = request.args.get('per_page', 10, type=int)
+            results = db.get_search_results(search_id, page, per_page)
+            return jsonify(results)
+        except Exception as e:
+            logging.error(f"Error getting results for saved search {search_id}: {e}")
+            return jsonify({'success': False, 'error': str(e)}), 500
 
     @app.route('/api/saved_items', methods=['POST'])
     def add_saved_item():

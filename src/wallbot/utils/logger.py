@@ -49,4 +49,7 @@ def setup_logger():
             datefmt='%m/%d/%Y %H:%M:%S'
         )
 
+    logging.getLogger("httpx").setLevel(logging.INFO)
+    logging.getLogger("telegram").setLevel(logging.INFO)
+
     locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')

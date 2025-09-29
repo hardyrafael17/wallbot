@@ -14,6 +14,7 @@ def run_web_server():
     try:
         # Create a DBHelper instance
         db = DBHelper()
+        db.setup()
         # Create the Flask app using the factory function
         app = create_web_app(db)
         
@@ -30,6 +31,9 @@ def run_web_server():
 
 if __name__ == "__main__":
     setup_logger()
+    db = DBHelper()
+    db.setup()
+    
     # Start the web server in a non-blocking background thread.
     # The 'daemon=True' flag ensures the thread will exit when the main program exits.
     web_thread = threading.Thread(target=run_web_server, daemon=True)

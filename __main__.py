@@ -1,8 +1,31 @@
 import logging
 import threading
-import time
+import asyncio
+from src.wallbot.wallapop.search_monitor import check_saved_searches
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+def setup_logging():
+    """Configures logging to be less verbose for libraries."""
+    # Get the root logger and remove any existing handlers
+    root_logger = logging.getLogger()
+    if root_logger.hasHandlers():
+        root_logger.handlers.clear()
+
+    # Configure the root logger with our settings
+    logging.basicConfig(
+        level=logging.INFO, 
+        format='%(asctime)s - %(name)-20s - %(levelname)-8s - %(message)s'
+    )
+
+    # Set the log level for your application's root module to DEBUG
+    # This will show all your custom debug logs.
+    logging.getLogger('src.wallbot').setLevel(logging.DEBUG)
+
+    # Set higher logging levels for noisy libraries, including the telegram extension
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    logging.getLogger('telegram.ext').setLevel(logging.WARNING)
+    logging.getLogger('telegram.bot').setLevel(logging.WARNING)
+    logging.getLogger("waitress").setLevel(logging.WARNING)
 
 def run_web_server():
     """
@@ -20,22 +43,23 @@ def run_web_server():
     except Exception as e:
         logging.error(f"Failed to start web server: {e}")
 
-def run_bot():
-    """
-    This is a placeholder for your main bot's entry point.
-    Replace the content of this function with your bot's startup and main loop.
-    """
-    logging.info("Starting core bot logic...")
-    # --- TODO: Replace this with your actual bot startup code. ---
-    # Example: bot.run() or similar blocking call.
-    logging.info("Bot is running...")
-    while True:
-        time.sleep(60) # Placeholder for a blocking operation
+async def main():
+    """Main async function to run all services."""
+    # Set up the custom logging configuration
+    setup_logging()
 
-if __name__ == "__main__":
     # Start the web server in a background thread
     web_thread = threading.Thread(target=run_web_server, daemon=True)
     web_thread.start()
 
-    # Run the main bot application in the main thread
-    run_bot()
+    # Start the saved searches monitor
+    # This will run indefinitely
+    await check_saved_searches()
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logging.info("Application shutting down.")
+    except Exception as e:
+        logging.critical(f"Application failed with a critical error: {e}", exc_info=True)

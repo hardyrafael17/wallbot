@@ -13,7 +13,10 @@ async def send_telegram_message(chat_id, text, parse_mode=None):
     except Exception as e:
         logging.error(f"Error sending Telegram message: {e}")
 
-async def format_and_send_message(chat_id, search_title, new_items):
+async def format_and_send_message(chat_id, search_title, new_items, search):
+    if not new_items:
+        return # No items to notify after filtering
+
     search_title = escape_markdown(search_title, version=2)
     message = f"**Busqueda:** {search_title}\n"
     for i, item in enumerate(new_items, 1):
