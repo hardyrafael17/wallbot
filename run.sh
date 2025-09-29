@@ -18,6 +18,9 @@ pip install -r requirements.txt
 echo "The Python application will load variables from the .env file directly."
 echo "Ensure your .env file exists and contains the BOT_TOKEN."
 
-# Execute the main startup script
-chmod +x ./start.sh
-exec ./start.sh
+# Set PROFILE to 'local' for development-specific settings (e.g., database path)
+export PROFILE=local
+
+echo "Starting WallBot application (core + web)..."
+# The Python app will start both the core bot and the web server.
+exec python3 -m src.wallbot
