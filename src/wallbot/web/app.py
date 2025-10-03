@@ -5,6 +5,7 @@ import os
 import sys
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 
+from src.wallbot.database.requests_db_helper import RequestsDBHelper
 from src.wallbot.wallapop.api_client import WallapopClient
 from src.wallbot.wallapop.api_models import ApiSearchItem, ApiPrice, ApiImage, ApiImageUrls, ApiLocation, ApiShipping, ApiTaxonomy, ApiDiscount
 from src.wallbot.wallapop.categories import CategoryService
@@ -495,5 +496,11 @@ def create_web_app(db):
     def restart():
         logging.info("Restarting application...")
         os.execv(sys.executable, [sys.executable, '-m', 'src.wallbot'])
+
+    @app.route('/requests')
+    def view_requests():
+        requests_db = RequestsDBHelper()
+        all_requests = requests_db.get_all_requests()
+        return render_template('request_responses.html', requests=all_requests)
 
     return app

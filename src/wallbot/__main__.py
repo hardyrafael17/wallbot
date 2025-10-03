@@ -6,6 +6,7 @@ from .main import main as run_bot_logic
 from src.wallbot.database.db_helper import DBHelper
 from src.wallbot.web.app import create_web_app
 from src.wallbot.utils.logger import setup_logger
+from src.wallbot.web.websocket_server import start_websocket_server
 
 def run_web_server():
     """
@@ -38,6 +39,10 @@ if __name__ == "__main__":
     # The 'daemon=True' flag ensures the thread will exit when the main program exits.
     web_thread = threading.Thread(target=run_web_server, daemon=True)
     web_thread.start()
+
+    # Start the WebSocket server in a background thread
+    websocket_thread = threading.Thread(target=start_websocket_server, daemon=True)
+    websocket_thread.start()
 
     # Run the main bot application logic in the main thread.
     # This is a blocking call that will keep the application alive.

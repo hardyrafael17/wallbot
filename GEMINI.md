@@ -94,6 +94,7 @@ wallbot/
 │       ├── database/
 │       │   ├── __init__.py
 │       │   ├── db_helper.py
+│       │   ├── requests_db_helper.py
 │       │   └── models.py
 │       ├── telegram/
 │       │   ├── __init__.py
@@ -113,12 +114,14 @@ wallbot/
 │       │   └── search_monitor.py
 │       └── web/
 │           ├── app.py
+│           ├── websocket_server.py
 │           └── templates/
 │               ├── index.html
 │               ├── manual_search.html
 │               ├── saved_items_list.html
 │               ├── saved_searches.html
-│               └── searches.html
+│               ├── searches.html
+│               └── request_responses.html
 ├── tests/
 │   ├── __init__.py
 │   └── test_version.py

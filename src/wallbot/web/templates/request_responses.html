@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request/Responses</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-size: 0.75rem;
+        }
+        .sortable {
+            cursor: pointer;
+        }
+        .sortable::after {
+            content: ' \2195'; /* up-down arrow */
+            opacity: 0.3;
+        }
+        .sortable.asc::after {
+            content: ' \25B2'; /* up arrow */
+            opacity: 1;
+        }
+        .sortable.desc::after {
+            content: ' \25BC'; /* down arrow */
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Wallbot</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/searches">Manage Searches</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/manual-search">Manual Search</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/saved_searches">Saved Searches</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/saved_items_list">Saved Items</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/requests">Request/Responses</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="fetch('/restart', { method: 'POST' })">Restart</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        <h1 class="mb-4">Request/Responses</h1>
+        <table class="table table-striped table-hover" id="requests-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th class="sortable" data-sort="url">URL</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                    <th class="sortable" data-sort="timestamp">Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr>
+                    <td>{{ req.id }}</td>
+                    <td>{{ req.url }}</td>
+                    <td>{{ req.method }}</td>
+                    <td>{{ req.status }}</td>
+                    <td>{{ req.timestamp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const table = document.getElementById('requests-table');
+            const headers = table.querySelectorAll('th.sortable');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            headers.forEach(header => {
+                header.addEventListener('click', () => {
+                    const sortKey = header.dataset.sort;
+                    const isAsc = header.classList.contains('asc');
+                    const direction = isAsc ? 'desc' : 'asc';
+
+                    headers.forEach(h => h.classList.remove('asc', 'desc'));
+                    header.classList.add(direction);
+
+                    rows.sort((a, b) => {
+                        const aVal = a.querySelector(`td:nth-child(${getColumnIndex(sortKey)})`).textContent;
+                        const bVal = b.querySelector(`td:nth-child(${getColumnIndex(sortKey)})`).textContent;
+
+                        if (sortKey === 'timestamp') {
+                            return direction === 'asc' ? new Date(aVal) - new Date(bVal) : new Date(bVal) - new Date(aVal);
+                        }
+
+                        return direction === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                    });
+
+                    tbody.innerHTML = '';
+                    rows.forEach(row => tbody.appendChild(row));
+                });
+            });
+
+            function getColumnIndex(key) {
+                if (key === 'url') return 2;
+                if (key === 'timestamp') return 5;
+                return 1;
+            }
+        });
+    </script>
+</body>
+</html>
