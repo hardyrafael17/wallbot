@@ -1,307 +1,56 @@
-[
-    {
-        "id": "8486ef3b-461a-4236-baca-b2f904d6de2d",
-        "title": "samsung galaxy s23 ultra",
-        "query": {
-            "latitude": 40.3482,
-            "longitude": -3.6989,
-            "keywords": "samsung galaxy s23 ultra",
-            "order_by": "newest",
-            "country_code": "ES",
-            "saved_search_id": "8486ef3b-461a-4236-baca-b2f904d6de2d"
+{
+    "url": "https://api.wallapop.com/api/v3/users/me/extra-info",
+    "method": "GET",
+    "status": 200,
+    "headers": [
+        {
+            "headerName": "Authorization",
+            "value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0NTQ2MDg5MzMiLCJkZXZpY2UiOiI5ZTczYjliMi0zZDEzLTQ5YzUtOTU1Yi03ZTI5OTZlZWI0MjEiLCJpYXQiOjE3NTk0NDM2OTksImV4cCI6MTc1OTUzMDA5OX0.msQ25ooCU5g2Xvu8lFbDzbdGyiZYtp_zzXp2qdiMYX6uJBdo-rgphPkACjQZDqAYRa-ghky7rUNXmmmGjPjskuBSN1wASzKocuPVwhNcWEf0yAOzFS3crPL9mQbYv2FLHUfv8flemw4asLhjG0UgkFZJwuIDPw3o-tPiRSo84QBnkjo1a2ktwzPcDfByvdUCanlLGmg7vXi4S5NmwUKtt-hMa8lzE5HY44jDYpArBk6diM-WvYIBkZaNJKzhYaGHXvWxCgPXZLj5REaFHRk3neRPzdkEL7EYlJUE8CQgIPzdmiCpJFBqQgDDlqDpNcI9iclayYdliPdT1DAVdhPyMQ"
         },
-        "placeholders": {},
-        "alert": {
-            "enabled": true,
-            "hits": 10,
-            "distance": 10000,
-            "last_hits_reset_at": "2025-09-29T17:26:00Z"
+        {
+            "headerName": "Accept-Language",
+            "value": "es,es-ES;q=0.9"
         },
-        "createdAt": 1759166809986,
-        "default_view": true,
-        "experiment": "exp_engagement_newvsold",
-        "items": [
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8",
-            "9",
-            "10"
-        ],
-        "description": "Todas las categorías. 28021 Madrid"
-    },
-    {
-        "id": "581141cb-b2fb-4f3b-9cee-6be2c0762727",
-        "title": "Samsung Galaxy S23 plus",
-        "query": {
-            "latitude": 40.3989,
-            "longitude": -3.6099,
-            "keywords": "Samsung Galaxy S23 plus",
-            "category_id": "24200",
-            "order_by": "newest",
-            "country_code": "ES",
-            "saved_search_id": "581141cb-b2fb-4f3b-9cee-6be2c0762727"
+        {
+            "headerName": "DeviceOS",
+            "value": "0"
         },
-        "placeholders": {},
-        "alert": {
-            "enabled": true,
-            "hits": 10,
-            "distance": 10000,
-            "last_hits_reset_at": "2025-09-29T13:44:00Z"
+        {
+            "headerName": "X-DeviceOS",
+            "value": "0"
         },
-        "createdAt": 1758548156968,
-        "default_view": true,
-        "experiment": "exp_engagement_newvsold",
-        "items": [
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8",
-            "9",
-            "10"
-        ],
-        "description": "Tecnología y electrónica. 28032 Madrid"
-    },
-    {
-        "id": "14fbc9fa-be2c-4781-870d-99a8d7ff90aa",
-        "title": "pixel google pro",
-        "query": {
-            "latitude": 40.3716006,
-            "longitude": -3.7473354999999997,
-            "keywords": "pixel google pro",
-            "category_id": "24200",
-            "min_sale_price": 100,
-            "max_sale_price": 600,
-            "distance_in_km": 100,
-            "order_by": "newest",
-            "country_code": "ES",
-            "saved_search_id": "14fbc9fa-be2c-4781-870d-99a8d7ff90aa"
+        {
+            "headerName": "X-DeviceID",
+            "value": "9e73b9b2-3d13-49c5-955b-7e2996eeb421"
         },
-        "placeholders": {},
-        "alert": {
-            "enabled": true,
-            "hits": 3,
-            "distance": 10000,
-            "last_hits_reset_at": "2025-09-30T14:38:00Z"
+        {
+            "headerName": "MPID",
+            "value": "-5942974146544375767"
         },
-        "createdAt": 1757018963583,
-        "default_view": true,
-        "experiment": "exp_engagement_newvsold",
-        "items": [
-            "1",
-            "2",
-            "3"
-        ],
-        "description": "Tecnología y electrónica. Entre 100 € y 600 €. 28054 Madrid. Hasta 100 km"
-    },
-    {
-        "id": "ba579b0e-1d58-4356-9adb-94d83ff3bec9",
-        "title": "google pixel xl",
-        "query": {
-            "latitude": 40.3716006,
-            "longitude": -3.7473354999999997,
-            "keywords": "google pixel xl",
-            "category_id": "24200",
-            "min_sale_price": 100,
-            "max_sale_price": 600,
-            "distance_in_km": 100,
-            "order_by": "newest",
-            "country_code": "ES",
-            "saved_search_id": "ba579b0e-1d58-4356-9adb-94d83ff3bec9"
+        {
+            "headerName": "X-AppVersion",
+            "value": "811350"
         },
-        "placeholders": {},
-        "alert": {
-            "enabled": true,
-            "hits": 2,
-            "distance": 10000,
-            "last_hits_reset_at": "2025-09-28T12:31:00Z"
+        {
+            "headerName": "Accept",
+            "value": "application/json, text/plain, */*"
+        }
+    ],
+    "response": {
+        "scoring_stars": 0,
+        "validations": {
+            "email": true,
+            "mobile": true,
+            "facebook": false,
+            "google_plus": true,
+            "linkedin": false,
+            "gender": false,
+            "location": false,
+            "picture": false,
+            "level": "verified",
+            "birthday": false,
+            "kyc": false
         },
-        "createdAt": 1757839910090,
-        "default_view": true,
-        "experiment": "exp_engagement_newvsold",
-        "items": [
-            "1",
-            "2"
-        ],
-        "description": "Tecnología y electrónica. Entre 100 € y 600 €. 28054 Madrid. Hasta 100 km"
-    },
-    {
-        "id": "ed6eb93e-33b4-4fca-a955-49428614e84f",
-        "title": "samsung galaxy s 23 ultra",
-        "query": {
-            "latitude": 40.386604,
-            "longitude": -3.725309,
-            "keywords": "samsung galaxy s 23 ultra",
-            "min_sale_price": 95,
-            "max_sale_price": 400,
-            "distance_in_km": 100,
-            "order_by": "newest",
-            "time_filter": "lastWeek",
-            "country_code": "ES",
-            "saved_search_id": "ed6eb93e-33b4-4fca-a955-49428614e84f"
-        },
-        "placeholders": {},
-        "alert": {
-            "enabled": true,
-            "hits": 2,
-            "distance": 10000,
-            "last_hits_reset_at": "2025-09-23T05:59:00Z"
-        },
-        "createdAt": 1756668765045,
-        "default_view": true,
-        "experiment": "exp_engagement_newvsold",
-        "items": [
-            "1",
-            "2"
-        ],
-        "description": "Todas las categorías. Entre 95 € y 400 €. 28019 Madrid. Hasta 100 km. Últimos 7 días"
-    },
-    {
-        "id": "0bf3c4d6-3356-496b-b0e2-f643bffef9f2",
-        "title": "samsung galaxy s 23 ultra",
-        "query": {
-            "latitude": 40.386604,
-            "longitude": -3.725309,
-            "keywords": "samsung galaxy s 23 ultra",
-            "min_sale_price": 95,
-            "max_sale_price": 400,
-            "distance_in_km": 100,
-            "order_by": "newest",
-            "time_filter": "today",
-            "country_code": "ES",
-            "saved_search_id": "0bf3c4d6-3356-496b-b0e2-f643bffef9f2"
-        },
-        "placeholders": {},
-        "alert": {
-            "enabled": true,
-            "hits": 2,
-            "distance": 10000,
-            "last_hits_reset_at": "2025-09-29T17:52:00Z"
-        },
-        "createdAt": 1756667770512,
-        "default_view": true,
-        "experiment": "exp_engagement_newvsold",
-        "items": [
-            "1",
-            "2"
-        ],
-        "description": "Todas las categorías. Entre 95 € y 400 €. 28019 Madrid. Hasta 100 km. Últimas 24 h"
-    },
-    {
-        "id": "2496892b-6bce-44a6-a1df-f798879f4117",
-        "title": "nintendo swich 2 ",
-        "query": {
-            "latitude": 40.3989,
-            "longitude": -3.6099,
-            "keywords": "nintendo swich 2 ",
-            "order_by": "newest",
-            "country_code": "ES",
-            "saved_search_id": "2496892b-6bce-44a6-a1df-f798879f4117"
-        },
-        "placeholders": {},
-        "alert": {
-            "enabled": true,
-            "hits": 1,
-            "distance": 10000,
-            "last_hits_reset_at": "2025-09-29T13:30:00Z"
-        },
-        "createdAt": 1759152613915,
-        "default_view": true,
-        "experiment": "exp_engagement_newvsold",
-        "items": [
-            "1"
-        ],
-        "description": "Todas las categorías. 28032 Madrid"
-    },
-    {
-        "id": "d6742e58-5df4-47df-915f-420a0c7f0cef",
-        "title": "pixel google pro xl",
-        "query": {
-            "latitude": 40.3716006,
-            "longitude": -3.7473354999999997,
-            "keywords": "pixel google pro xl",
-            "category_id": "24200",
-            "min_sale_price": 100,
-            "max_sale_price": 600,
-            "distance_in_km": 100,
-            "order_by": "newest",
-            "country_code": "ES",
-            "saved_search_id": "d6742e58-5df4-47df-915f-420a0c7f0cef"
-        },
-        "placeholders": {},
-        "alert": {
-            "enabled": true,
-            "hits": 1,
-            "distance": 10000,
-            "last_hits_reset_at": "2025-09-23T05:59:00Z"
-        },
-        "createdAt": 1757243558392,
-        "default_view": true,
-        "experiment": "exp_engagement_newvsold",
-        "items": [
-            "1"
-        ],
-        "description": "Tecnología y electrónica. Entre 100 € y 600 €. 28054 Madrid. Hasta 100 km"
-    },
-    {
-        "id": "0290748c-f518-4216-8335-eec1ad7e0c62",
-        "title": "samsung galaxy s 22 ultra",
-        "query": {
-            "latitude": 40.3783203,
-            "longitude": -3.7133527999999996,
-            "keywords": "samsung galaxy s 22 ultra",
-            "min_sale_price": 100,
-            "max_sale_price": 350,
-            "distance_in_km": 100,
-            "order_by": "newest",
-            "time_filter": "lastWeek",
-            "country_code": "ES",
-            "saved_search_id": "0290748c-f518-4216-8335-eec1ad7e0c62"
-        },
-        "placeholders": {},
-        "alert": {
-            "enabled": true,
-            "hits": 1,
-            "distance": 10000,
-            "last_hits_reset_at": "2025-09-23T05:59:00Z"
-        },
-        "createdAt": 1756793734062,
-        "default_view": true,
-        "experiment": "exp_engagement_newvsold",
-        "items": [
-            "1"
-        ],
-        "description": "Todas las categorías. Entre 100 € y 350 €. 28026 Madrid. Hasta 100 km. Últimos 7 días"
-    },
-    {
-        "id": "636584c3-1d42-4fd2-a024-cb599d8f2889",
-        "title": "vendo",
-        "query": {
-            "latitude": 40.3989,
-            "longitude": -3.6099,
-            "keywords": "vendo",
-            "country_code": "ES",
-            "saved_search_id": "636584c3-1d42-4fd2-a024-cb599d8f2889"
-        },
-        "placeholders": {},
-        "alert": {
-            "enabled": true,
-            "hits": 0,
-            "distance": 10000,
-            "last_hits_reset_at": "2025-10-02T15:40:00Z"
-        },
-        "createdAt": 1759168117947,
-        "default_view": true,
-        "experiment": "exp_engagement_newvsold",
-        "items": null,
-        "description": "Todas las categorías. 28032 Madrid"
+        "activity_level": "unknown"
     }
-]
+}

@@ -49,7 +49,7 @@ This document outlines the standards and conventions used in this project.
 The project follows the structure outlined in the `README.md` file.
 
 ```
-wallapop_bot/
+wallbot/
 ├── __main__.py
 ├── .env.example
 ├── .gitignore
