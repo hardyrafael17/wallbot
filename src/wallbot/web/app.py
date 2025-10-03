@@ -402,7 +402,7 @@ def create_web_app(db):
                     'category_id': request.form.get('category_id'),
                     'subcategory_ids': request.form.get('subcategory_ids'),
                     'time_filter': request.form.get('time_filter'),
-                    'order_by': request.form.get('order_by'),
+                    'order_by': request.form.get('order_by')
                 }
 
                 latitude = request.form.get('latitude')
@@ -465,6 +465,31 @@ def create_web_app(db):
     @app.route('/api/categories')
     def get_categories():
         return jsonify(json.loads(category_service.get_categories_as_json()))
+
+    @app.route('/api/request', methods=['POST'])
+    def make_request():
+        url = request.json.get('url')
+        method = request.json.get('method', 'GET').upper()
+        req_data = request.json.get('data')
+        req_json = request.json.get('json')
+        headers = request.json.get('headers')
+
+        if not url:
+            return jsonify({'error': 'URL is required'}), 400
+
+        response = wallapop_client.make_request(method, url, data=req_data, json=req_json, headers=headers)
+
+        if response is None:
+            # This case happens if there was a connection error and no response was received.
+            return jsonify({'status_code': 500, 'content': 'Request failed. Check application logs for details.', 'is_json': False}), 500
+
+        try:
+            # Try to parse the response as JSON.
+            json_response = response.json()
+            return jsonify({'status_code': response.status_code, 'content': json_response, 'is_json': True})
+        except json.JSONDecodeError:
+            # If JSON parsing fails, return the raw text content.
+            return jsonify({'status_code': response.status_code, 'content': response.text, 'is_json': False})
 
     @app.route('/restart', methods=['POST'])
     def restart():

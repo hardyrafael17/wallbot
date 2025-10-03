@@ -11,7 +11,30 @@ class WallapopClient:
         self.base_url = WALLAPOP_API_URL
         self.item_url = WALLAPOP_ITEM_URL
         self.user_url = WALLAPOP_USER_URL
-        self.headers = {'x-deviceos': '0'}
+        self.headers = {
+            'x-deviceos': '0',
+            'Accept': 'application/json, text/plain, */*',
+            'User-Agent': 'Mozilla/5.0'
+        }
+
+    def make_request(self, method, url, data=None, json=None, headers=None):
+        """Makes a request to a given URL with the specified method and returns the response object."""
+        logging.debug(f"Making {method} request to URL: {url}")
+        
+        request_headers = self.headers.copy()
+        if headers:
+            request_headers.update(headers)
+            
+        try:
+            response = requests.request(method, url, headers=request_headers, data=data, json=json, timeout=10)
+            response.raise_for_status()
+            return response
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Error in API Wallapop ({method}) for URL {url}: {e}")
+            if e.response is not None:
+                # Return the response even if it's an error, so the caller can inspect it
+                return e.response
+            return None
 
     def search_items(self, search: ChatSearch):
         url = self._build_search_url(search)
