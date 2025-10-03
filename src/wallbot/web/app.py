@@ -503,4 +503,10 @@ def create_web_app(db):
         all_requests = requests_db.get_all_requests()
         return render_template('request_responses.html', requests=all_requests)
 
+    @app.route('/api/requests/delete_all', methods=['POST'])
+    def delete_all_requests():
+        requests_db = RequestsDBHelper()
+        requests_db.delete_all_requests()
+        return jsonify({'success': True})
+
     return app

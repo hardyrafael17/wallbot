@@ -61,3 +61,11 @@ class RequestsDBHelper:
         except Exception as e:
             logging.error(f"Error getting all requests: {e}")
         return requests
+
+    def delete_all_requests(self):
+        stmt = "DELETE FROM requests"
+        try:
+            self.__conn.execute(stmt)
+            self.__conn.commit()
+        except Exception as e:
+            logging.error(f"Error deleting all requests: {e}")

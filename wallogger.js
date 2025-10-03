@@ -4,19 +4,35 @@
 // @match       https://es.wallapop.com/*
 // @match       https://*.wallapop.com/*
 // @grant       none
-// @version     1.1
+// @version     1.2
 // @author      -
-// @description 29/9/2025, 7:16:41 p. m. - Captures headers too
+// @description 3/10/2025, 12:00:00 p. m. - Send data to WebSocket
 // ==/UserScript==
 
 class NetworkCapture {
   constructor() {
     this.requests = [];
+    this.ws = null;
     this.originalOpen = XMLHttpRequest.prototype.open;
     this.originalSend = XMLHttpRequest.prototype.send;
     this.originalFetch = window.fetch;
     this.originalSetRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
+    this.connect();
     this.setupInterceptors();
+  }
+
+  connect() {
+    this.ws = new WebSocket('ws://localhost:8765');
+    this.ws.onopen = () => {
+      console.log('WebSocket connection established.');
+    };
+    this.ws.onclose = () => {
+      console.log('WebSocket connection closed. Reconnecting in 5 seconds...');
+      setTimeout(() => this.connect(), 5000);
+    };
+    this.ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
   }
 
   setupInterceptors() {
@@ -57,16 +73,9 @@ class NetworkCapture {
       const originalOnReadyStateChange = this.onreadystatechange;
 
       this.onreadystatechange = function() {
-        if (this.readyState === 4) { // Request completed
+        if (this.readyState === 4) {
           const endTime = Date.now();
           if (this.__requestUrl && this.__requestUrl.startsWith('https://api.wallapop.com/api/v3')) {
-            const url = new URL(this.__requestUrl);
-            const urlParams = {};
-            for (const [key, value] of url.searchParams) {
-              urlParams[key] = value;
-            }
-
-            // Prepare headers array from the captured headers
             const customHeaders = [];
             if (this.__finalHeaders) {
               for (const [headerName, value] of Object.entries(this.__finalHeaders)) {
@@ -75,48 +84,29 @@ class NetworkCapture {
             }
 
             let parsedResponse = this.response;
-            // Try to parse response as JSON
             if (this.response && typeof this.response === 'string') {
               try {
                 parsedResponse = JSON.parse(this.response);
               } catch (e) {
-                // If JSON parsing fails, keep original response
                 parsedResponse = this.response;
               }
             }
-            // This should be sent to WebSocket
-            const sendToWebSocket = {
-              urlEndPoint: this.__requestUrl,
-              method: this.__requestMethod,
-              status: this.status,
-              response: parsedResponse,
-              payload: self.parsePayload(this.__requestData),
-              urlParams: urlParams,
-              startTime: startTime,
-              endTime: endTime,
-              duration: endTime - startTime,
-            };
-            // The object above should be sent to WebSocket 
-            self.requests.push({
-              urlEndPoint: this.__requestUrl,
-              method: this.__requestMethod,
-              status: this.status,
-              response: parsedResponse,
-              payload: self.parsePayload(this.__requestData),
-              urlParams: urlParams,
-              startTime: startTime,
-              endTime: endTime,
-              duration: endTime - startTime,
-              "custom_headers": customHeaders // Add the captured headers
-            });
 
-            console.log('XHR Captured:', {
+            const sendToWebSocket = {
               url: this.__requestUrl,
               method: this.__requestMethod,
               status: this.status,
-              headers: customHeaders, // Log headers too
-              response: parsedResponse
-            });
+              headers: customHeaders,
+              response: parsedResponse,
+            };
+
+            if (self.ws && self.ws.readyState === WebSocket.OPEN) {
+              self.ws.send(JSON.stringify(sendToWebSocket));
+            }
+
+            self.requests.push(sendToWebSocket);
+
+            console.log('XHR Captured:', sendToWebSocket);
             console.log('Total requests:', self.requests.length);
           }
         }
@@ -133,27 +123,14 @@ class NetworkCapture {
       const url = resource instanceof Request ? resource.url : resource;
 
       if (url && url.startsWith('https://api.wallapop.com/api/v3')) {
-        const startTime = Date.now();
-        const payload = self.parsePayload(options.body);
-
-        // Parse URL parameters
-        const urlObj = new URL(url);
-        const urlParams = {};
-        for (const [key, value] of urlObj.searchParams) {
-          urlParams[key] = value;
-        }
-
-        // Prepare headers array for fetch
         const customHeaders = [];
         if (options.headers) {
-          // Handle Headers object or plain object
           if (options.headers instanceof Headers) {
             for (const [headerName, value] of options.headers.entries()) {
               customHeaders.push({ "headerName": headerName, "value": value });
             }
           } else if (typeof options.headers === 'object') {
             for (const [headerName, value] of Object.entries(options.headers)) {
-              // Ensure headerName is a string
               if (typeof headerName === 'string') {
                 customHeaders.push({ "headerName": headerName, "value": value });
               }
@@ -163,67 +140,50 @@ class NetworkCapture {
 
         return self.originalFetch.apply(this, arguments)
           .then(response => {
-            const endTime = Date.now();
-            // Clone response to read it without consuming it
             const responseClone = response.clone();
             return responseClone.text().then(text => {
               let parsedResponse = text;
-              // Try to parse response as JSON
               try {
                 parsedResponse = JSON.parse(text);
               } catch (e) {
-                // If JSON parsing fails, keep original text
                 parsedResponse = text;
               }
 
-              self.requests.push({
-                urlEndPoint: url,
-                method: options.method || 'GET',
-                status: response.status,
-                response: parsedResponse,
-                payload: payload,
-                urlParams: urlParams,
-                startTime: startTime,
-                endTime: endTime,
-                duration: endTime - startTime,
-                "custom_headers": customHeaders // Add the captured headers
-              });
-
-              console.log('Fetch Captured:', {
+              const sendToWebSocket = {
                 url: url,
                 method: options.method || 'GET',
                 status: response.status,
-                headers: customHeaders, // Log headers too
-                response: parsedResponse
-              });
+                headers: customHeaders,
+                response: parsedResponse,
+              };
+
+              if (self.ws && self.ws.readyState === WebSocket.OPEN) {
+                self.ws.send(JSON.stringify(sendToWebSocket));
+              }
+
+              self.requests.push(sendToWebSocket);
+
+              console.log('Fetch Captured:', sendToWebSocket);
               console.log('Total requests:', self.requests.length);
 
               return response;
             });
           })
           .catch(error => {
-            // Handle network errors
-            const endTime = Date.now();
-            self.requests.push({
-              urlEndPoint: url,
-              method: options.method || 'GET',
-              status: 0,
-              response: error.message,
-              payload: payload,
-              urlParams: urlParams,
-              startTime: startTime,
-              endTime: endTime,
-              duration: endTime - startTime,
-              "custom_headers": customHeaders // Add the captured headers
-            });
-
-            console.log('Fetch Error Captured:', {
+            const sendToWebSocket = {
               url: url,
               method: options.method || 'GET',
               status: 0,
-              headers: customHeaders, // Log headers too
-              error: error.message
-            });
+              headers: customHeaders,
+              response: error.message,
+            };
+
+            if (self.ws && self.ws.readyState === WebSocket.OPEN) {
+              self.ws.send(JSON.stringify(sendToWebSocket));
+            }
+            self.requests.push(sendToWebSocket);
+
+            console.log('Fetch Error Captured:', sendToWebSocket);
             console.log('Total requests:', self.requests.length);
 
             return Promise.reject(error);
@@ -234,7 +194,6 @@ class NetworkCapture {
     };
   }
 
-  // Helper method to parse different types of payloads
   parsePayload(data) {
     if (!data) {
       return null;
@@ -242,11 +201,9 @@ class NetworkCapture {
 
     try {
       if (typeof data === 'string') {
-        // Try to parse as JSON
         if (data.startsWith('{') || data.startsWith('[')) {
           return JSON.parse(data);
         }
-        // Try to parse as form data
         if (data.includes('&')) {
           const formData = {};
           data.split('&').forEach(pair => {
@@ -275,48 +232,38 @@ class NetworkCapture {
       }
       return data.toString();
     } catch (e) {
-      // If parsing fails, return the original data
       return data;
     }
   }
 
-  // Getter for all captured requests
   get capturedRequests() {
     return this.requests;
   }
 
-  // Getter for Wallapop API v3 requests only
   get wallapopApiV3Requests() {
-    return this.requests.filter(req => req.urlEndPoint.startsWith('https://api.wallapop.com/api/v3'));
+    return this.requests.filter(req => req.url.startsWith('https://api.wallapop.com/api/v3'));
   }
 
-  // Getter for request count
   get requestCount() {
     return this.requests.length;
   }
 
-  // Getter for Wallapop API v3 request count
   get wallapopApiV3RequestCount() {
     return this.wallapopApiV3Requests.length;
   }
 
-  // Method to clear captured requests
   clear() {
     this.requests = [];
   }
 
-  // Method to print captured requests to console
   printRequests() {
     console.log('Captured Network Requests:', this.capturedRequests);
     console.log('Wallapop API v3 Requests:', this.wallapopApiV3Requests);
   }
 }
 
-// Initialize the network capture
 const networkCapture = new NetworkCapture();
-
-// Make it globally accessible
 window.networkCapture = networkCapture;
 
-console.log('Network capture initialized (v1.1 - Headers). Use window.networkCapture to access captured requests.');
+console.log('Network capture initialized (v1.2 - WebSocket). Use window.networkCapture to access captured requests.');
 console.log('Available methods: capturedRequests, wallapopApiV3Requests, requestCount, wallapopApiV3RequestCount');

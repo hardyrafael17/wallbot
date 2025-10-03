@@ -24,6 +24,13 @@
             content: ' \25BC'; /* down arrow */
             opacity: 1;
         }
+        .clickable-row {
+            cursor: pointer;
+        }
+        .modal-body {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -59,6 +66,10 @@
     </nav>
     <div class="container mt-4">
         <h1 class="mb-4">Request/Responses</h1>
+        <div class="mb-3 d-flex justify-content-between">
+            <input type="text" id="urlFilter" class="form-control me-2" placeholder="Filter by URL...">
+            <button id="deleteAllButton" class="btn btn-danger">Delete All</button>
+        </div>
         <table class="table table-striped table-hover" id="requests-table">
             <thead>
                 <tr>
@@ -71,7 +82,7 @@
             </thead>
             <tbody>
                 {% for req in requests %}
-                <tr>
+                <tr class="clickable-row">
                     <td>{{ req.id }}</td>
                     <td>{{ req.url }}</td>
                     <td>{{ req.method }}</td>
@@ -82,45 +93,138 @@
             </tbody>
         </table>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const table = document.getElementById('requests-table');
-            const headers = table.querySelectorAll('th.sortable');
-            const tbody = table.querySelector('tbody');
-            const rows = Array.from(tbody.querySelectorAll('tr'));
 
-            headers.forEach(header => {
-                header.addEventListener('click', () => {
-                    const sortKey = header.dataset.sort;
-                    const isAsc = header.classList.contains('asc');
-                    const direction = isAsc ? 'desc' : 'asc';
-
-                    headers.forEach(h => h.classList.remove('asc', 'desc'));
-                    header.classList.add(direction);
-
-                    rows.sort((a, b) => {
-                        const aVal = a.querySelector(`td:nth-child(${getColumnIndex(sortKey)})`).textContent;
-                        const bVal = b.querySelector(`td:nth-child(${getColumnIndex(sortKey)})`).textContent;
-
-                        if (sortKey === 'timestamp') {
-                            return direction === 'asc' ? new Date(aVal) - new Date(bVal) : new Date(bVal) - new Date(aVal);
-                        }
-
-                        return direction === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+    <!-- JSON Details Modal -->
+    <div class="modal fade" id="jsonDetailsModal" tabindex="-1" aria-labelledby="jsonDetailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="jsonDetailsModalLabel">JSON Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="json-details-content"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="copyJsonButton">Copy JSON</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/caldwell/renderjson@1.4.0/renderjson.js"></script>
+        <script>
+            const requests_data = {{ requests | tojson }};
+            console.log(requests_data);
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const table = document.getElementById('requests-table');
+                const headers = table.querySelectorAll('th.sortable');
+                const tbody = table.querySelector('tbody');
+                        let rows = Array.from(tbody.querySelectorAll('tr'));
+                const urlFilterInput = document.getElementById('urlFilter');
+                const deleteAllButton = document.getElementById('deleteAllButton');
+                const jsonDetailsModal = new bootstrap.Modal(document.getElementById('jsonDetailsModal'));
+                const copyJsonButton = document.getElementById('copyJsonButton');
+                let currentIndex = -1;
+        
+                function showJsonDetails(index) {
+                    currentIndex = index;
+                    const jsonData = requests_data[rows[currentIndex].dataset.originalIndex];
+                    jsonDetailsContent.innerHTML = '';
+                    jsonDetailsContent.appendChild(renderjson(jsonData));
+                    jsonDetailsModal.show();
+                }
+        
+                rows.forEach((row, index) => {
+                    row.dataset.originalIndex = index;
+                    row.addEventListener('click', () => {
+                        showJsonDetails(rows.indexOf(row));
                     });
-
-                    tbody.innerHTML = '';
-                    rows.forEach(row => tbody.appendChild(row));
                 });
+        
+                copyJsonButton.addEventListener('click', () => {
+                    if (currentIndex !== -1) {
+                        const jsonData = requests_data[rows[currentIndex].dataset.originalIndex];
+                        navigator.clipboard.writeText(JSON.stringify(jsonData, null, 2)).then(() => {
+                            alert('JSON copied to clipboard!');
+                        }).catch(err => {
+                            console.error('Failed to copy JSON: ', err);
+                        });
+                    }
+                });
+        
+                document.addEventListener('keydown', (event) => {
+                    if (jsonDetailsModal._isShown) {
+                        if (event.key === 'ArrowDown') {
+                            if (currentIndex < rows.length - 1) {
+                                showJsonDetails(currentIndex + 1);
+                            }
+                        } else if (event.key === 'ArrowUp') {
+                                        if (currentIndex > 0) {
+                                            showJsonDetails(currentIndex - 1);
+                                        }
+                                    }
+                                }
+                            });
+                            
+                            urlFilterInput.addEventListener('input', () => {
+                                const filterText = urlFilterInput.value.toLowerCase();
+                                rows.forEach(row => {
+                                    const url = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                                    if (url.includes(filterText)) {
+                                        row.style.display = '';
+                                    } else {
+                                        row.style.display = 'none';
+                                    }
+                                });
+                            });        
+                headers.forEach(header => {
+                    header.addEventListener('click', () => {
+                        const sortKey = header.dataset.sort;
+                        const isAsc = header.classList.contains('asc');
+                        const direction = isAsc ? 'desc' : 'asc';
+        
+                        headers.forEach(h => h.classList.remove('asc', 'desc'));
+                        header.classList.add(direction);
+        
+                        rows.sort((a, b) => {
+                            const aVal = a.querySelector(`td:nth-child(${getColumnIndex(sortKey)})`).textContent;
+                            const bVal = b.querySelector(`td:nth-child(${getColumnIndex(sortKey)})`).textContent;
+        
+                            if (sortKey === 'timestamp') {
+                                return direction === 'asc' ? new Date(aVal) - new Date(bVal) : new Date(bVal) - new Date(aVal);
+                            }
+        
+                            return direction === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                        });
+        
+                        tbody.innerHTML = '';
+                        rows.forEach(row => tbody.appendChild(row));
+                    });
+                });
+        
+                function getColumnIndex(key) {
+                    if (key === 'url') return 2;
+                    if (key === 'timestamp') return 5;
+                    return 1;
+                }
+            deleteAllButton.addEventListener('click', () => {
+                if (confirm('Are you sure you want to delete all requests?')) {
+                    fetch('/api/requests/delete_all', { method: 'POST' })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                alert('Failed to delete requests.');
+                            }
+                        });
+                }
             });
-
-            function getColumnIndex(key) {
-                if (key === 'url') return 2;
-                if (key === 'timestamp') return 5;
-                return 1;
-            }
-        });
-    </script>
-</body>
+            });
+        </script></body>
 </html>
