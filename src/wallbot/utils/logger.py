@@ -52,4 +52,7 @@ def setup_logger():
     logging.getLogger("httpx").setLevel(logging.INFO)
     logging.getLogger("telegram").setLevel(logging.INFO)
 
-    locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+    try:
+        locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+    except locale.Error:
+        logging.warning("Could not set locale 'es_ES.UTF-8'. This might be due to the locale not being installed on the system.")
