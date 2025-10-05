@@ -48,11 +48,22 @@ async def _execute_search(search, wallapop_client: WallapopClient, db_helper: DB
         query_params = parse_qs(parsed_url.query)
         search_params_filtered = {k: v[0] for k, v in query_params.items()}
 
+        request_count = 0
         response_json = wallapop_client.search_items_from_web(**search_params_filtered)
+        request_count += 1
 
         page_count = 1
         if response_json:
+            meta = response_json.get('meta', {})
             raw_items = response_json.get('data', {}).get('section', {}).get('payload', {}).get('items', [])
+            
+            logging.info("meta")
+            for key, value in meta.items():
+                if key != 'next_page':
+                    logging.info(f"{key} = {value}")
+            logging.info(f"items length: {len(raw_items)}")
+            logging.info(f"request count: {request_count}")
+
             for item in raw_items:
                 item_id = item.get("id")
                 if item_id and not db_helper.search_result_exists(search.id, item_id):
@@ -64,8 +75,18 @@ async def _execute_search(search, wallapop_client: WallapopClient, db_helper: DB
                 page_count += 1
                 logging.info(f"Getting page number {page_count} for search {search.id}")
                 response_json = wallapop_client.search_items_from_web(next_page=next_page)
+                request_count += 1
                 if response_json:
+                    meta = response_json.get('meta', {})
                     raw_items = response_json.get('data', {}).get('section', {}).get('payload', {}).get('items', [])
+
+                    logging.info("meta")
+                    for key, value in meta.items():
+                        if key != 'next_page':
+                            logging.info(f"{key} = {value}")
+                    logging.info(f"items length: {len(raw_items)}")
+                    logging.info(f"request count: {request_count}")
+
                     for item in raw_items:
                         item_id = item.get("id")
                         if item_id and not db_helper.search_result_exists(search.id, item_id):
