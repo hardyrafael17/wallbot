@@ -17,22 +17,21 @@ def _item_matches_filters(item, search) -> bool:
     
     item_title = item.get('title', '').lower()
     item_description = item.get('description', '').lower()
-    item_text = f"{item_title} {item_description}"
 
     logging.debug(f"Checking item {item.get('id')}:")
     logging.debug(f"  Title: {item_title}")
     logging.debug(f"  Description: {item_description}")
     logging.debug(f"  Positive words: {positive_words}")
     logging.debug(f"  Negative words: {negative_words}")
-
-    # If there are positive words, all of them must be present.
-    if positive_words and not all(word in item_text for word in positive_words):
-        logging.info(f"Item {item.get('id')} rejected: missing positive words.")
+    
+    # If there are positive words, all of them must be present in the title.
+    if positive_words and not all(word in item_title for word in positive_words):
+        logging.info(f"Item {item.get('id')} rejected: title missing positive words.")
         return False
 
-    # If there are negative words, none should be present.
-    if negative_words and any(word in item_text for word in negative_words):
-        logging.info(f"Item {item.get('id')} rejected: contains negative words.")
+    # If there are negative words, none should be present in the description.
+    if negative_words and any(word in item_description for word in negative_words):
+        logging.info(f"Item {item.get('id')} rejected: description contains negative words.")
         return False
 
     logging.debug(f"Item {item.get('id')} matches all filters.")
