@@ -51,6 +51,7 @@ async def _execute_search(search, wallapop_client: WallapopClient, db_helper: DB
         response_json = wallapop_client.search_items_from_web(**search_params_filtered)
         request_count += 1
 
+        
         page_count = 1
         if response_json:
             meta = response_json.get('meta', {})
@@ -63,14 +64,21 @@ async def _execute_search(search, wallapop_client: WallapopClient, db_helper: DB
             logging.info(f"items length: {len(raw_items)}")
             logging.info(f"request count: {request_count}")
 
+            found_existing_item_on_page = False
             for item in raw_items:
                 item_id = item.get("id")
-                if item_id and not db_helper.search_result_exists(search.id, item_id):
-                    logging.info(f"New item found for search {search.id}: {item_id}")
-                    new_items.append(item)
-
+                if item_id:
+                    if db_helper.search_result_exists(search.id, item_id):
+                        found_existing_item_on_page = True
+                    else:
+                        logging.info(f"New item found for search {search.id}: {item_id}")
+                        new_items.append(item)
+            
             next_page = response_json.get('meta', {}).get('next_page')
-            while next_page and page_count < search.pages:
+            next_section_type = response_json.get('meta', {}).get('next_section_type')
+
+            # 3. Only request next page if conditions are met
+            while next_page and page_count < search.pages and not found_existing_item_on_page and next_section_type == "organic_search_results":
                 page_count += 1
                 logging.info(f"Getting page number {page_count} for search {search.id}")
                 response_json = wallapop_client.search_items_from_web(next_page=next_page)
@@ -78,20 +86,19 @@ async def _execute_search(search, wallapop_client: WallapopClient, db_helper: DB
                 if response_json:
                     meta = response_json.get('meta', {})
                     raw_items = response_json.get('data', {}).get('section', {}).get('payload', {}).get('items', [])
-
-                    logging.info("meta")
-                    for key, value in meta.items():
-                        if key != 'next_page':
-                            logging.info(f"{key} = {value}")
-                    logging.info(f"items length: {len(raw_items)}")
-                    logging.info(f"request count: {request_count}")
-
+                    
+                    found_existing_item_on_page = False
                     for item in raw_items:
                         item_id = item.get("id")
-                        if item_id and not db_helper.search_result_exists(search.id, item_id):
-                            logging.info(f"New item found for search {search.id}: {item_id}")
-                            new_items.append(item)
+                        if item_id:
+                            if db_helper.search_result_exists(search.id, item_id):
+                                found_existing_item_on_page = True
+                            else:
+                                logging.info(f"New item found for search {search.id}: {item_id}")
+                                new_items.append(item)
+                    
                     next_page = response_json.get('meta', {}).get('next_page')
+                    next_section_type = response_json.get('meta', {}).get('next_section_type')
                 else:
                     next_page = None
 

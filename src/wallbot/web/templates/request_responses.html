@@ -31,9 +31,38 @@
             max-height: 80vh;
             overflow-y: auto;
         }
+        #toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 2px;
+            padding: 16px;
+            z-index: 1070;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.5s linear;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        #toast.success {
+            background-color: #28a745;
+        }
+
+        #toast.error {
+            background-color: #dc3545;
+        }
     </style>
 </head>
 <body>
+    <div id="toast"></div>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Wallbot</a>
@@ -78,16 +107,24 @@
                     <th>Method</th>
                     <th>Status</th>
                     <th class="sortable" data-sort="timestamp">Timestamp</th>
+                    <th>Save</th>
                 </tr>
             </thead>
             <tbody>
                 {% for req in requests %}
                 <tr class="clickable-row">
                     <td>{{ req.id }}</td>
-                    <td>{{ req.url }}</td>
+                    <td class="url-cell">{{ req.url }}</td>
                     <td>{{ req.method }}</td>
                     <td>{{ req.status }}</td>
                     <td>{{ req.timestamp }}</td>
+                    <td>
+                        <button type="button" class="btn btn-outline-danger btn-sm save-search-btn" title="Save Search">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                                <path d="m8 2.748-.717-.737C5.6.278 2.5 1.505 2.5 4.468c0 1.226.568 2.34 1.546 3.223L8 13.36l3.954-5.668C12.932 6.808 13.5 5.694 13.5 4.468c0-2.963-3.1-4.19-4.783-3.455L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                            </svg>
+                        </button>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -124,12 +161,25 @@
                 const table = document.getElementById('requests-table');
                 const headers = table.querySelectorAll('th.sortable');
                 const tbody = table.querySelector('tbody');
-                        let rows = Array.from(tbody.querySelectorAll('tr'));
+                let rows = Array.from(tbody.querySelectorAll('tr'));
                 const urlFilterInput = document.getElementById('urlFilter');
                 const deleteAllButton = document.getElementById('deleteAllButton');
                 const jsonDetailsModal = new bootstrap.Modal(document.getElementById('jsonDetailsModal'));
                 const copyJsonButton = document.getElementById('copyJsonButton');
                 let currentIndex = -1;
+
+                let toastTimeout;
+                function showToast(message, isError = false) {
+                    const toast = document.getElementById('toast');
+                    if (toastTimeout) {
+                        clearTimeout(toastTimeout);
+                    }
+                    toast.textContent = message;
+                    toast.className = 'show ' + (isError ? 'error' : 'success');
+                    toastTimeout = setTimeout(function(){
+                        toast.className = toast.className.replace('show ', '');
+                    }, 3000);
+                }
         
                 function showJsonDetails(index) {
                     currentIndex = index;
@@ -141,8 +191,44 @@
         
                 rows.forEach((row, index) => {
                     row.dataset.originalIndex = index;
-                    row.addEventListener('click', () => {
+                    row.addEventListener('click', (e) => {
+                        if (e.target.closest('.save-search-btn')) {
+                            return;
+                        }
                         showJsonDetails(rows.indexOf(row));
+                    });
+                });
+
+                tbody.addEventListener('click', function(e) {
+                    const saveBtn = e.target.closest('.save-search-btn');
+                    if (!saveBtn) return;
+
+                    const row = saveBtn.closest('tr');
+                    const urlToSave = row.querySelector('.url-cell').textContent;
+
+                    if (!urlToSave) {
+                        showToast('URL is empty.', true);
+                        return;
+                    }
+
+                    fetch('/api/saved_searches', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ url: urlToSave }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('Search saved successfully!');
+                        } else {
+                            showToast(data.error || 'Error saving search', true);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('An error occurred while saving the search.', true);
                     });
                 });
         
